@@ -13,6 +13,8 @@ mediaDiscordURL = "https://discord.gg/zNWUXdt"
 [ejs.settings]
 sourceGithubLink = "https://github.com/dscalZi/HeliosLauncher"
 supportLink = "https://github.com/dscalZi/HeliosLauncher/issues"
+elyAccount = "Ely.by"
+addElyAccount = "+ Добавить аккаунт Ely.by"
 
 [ejs.welcome]
 welcomeHeader = "WELCOME TO WESTEROSCRAFT"
