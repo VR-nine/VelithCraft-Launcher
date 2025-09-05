@@ -256,6 +256,11 @@ function createWindow() {
 
     win.resizable = true
 
+    // Открыть DevTools в режиме разработки
+    if (isDev) {
+        win.webContents.openDevTools()
+    }
+
     win.on('closed', () => {
         win = null
     })
@@ -314,8 +319,30 @@ function createMenu() {
             }]
         }
 
+        // Добавить меню для разработки
+        let devSubMenu = {
+            label: 'Developer',
+            submenu: [{
+                label: 'Toggle Developer Tools',
+                accelerator: 'Cmd+Option+I',
+                click: () => {
+                    if (win) {
+                        win.webContents.toggleDevTools()
+                    }
+                }
+            }, {
+                label: 'Reload',
+                accelerator: 'Cmd+R',
+                click: () => {
+                    if (win) {
+                        win.reload()
+                    }
+                }
+            }]
+        }
+
         // Bundle submenus into a single template and build a menu object with it
-        let menuTemplate = [applicationSubMenu, editSubMenu]
+        let menuTemplate = [applicationSubMenu, editSubMenu, devSubMenu]
         let menuObject = Menu.buildFromTemplate(menuTemplate)
 
         // Assign it to the application
