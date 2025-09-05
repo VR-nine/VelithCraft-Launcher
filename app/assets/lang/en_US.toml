@@ -127,7 +127,7 @@ whatsNew = "What's New"
 updateReleaseNotes = "Update Release Notes"
 
 [ejs.waiting]
-waitingText = "Waiting for Microsoft.."
+waitingText = "Waiting.."
 
 [ejs.welcome]
 continueButton = "CONTINUE"
