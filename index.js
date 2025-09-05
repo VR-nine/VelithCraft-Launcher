@@ -234,11 +234,22 @@ function createWindow() {
         webPreferences: {
             preload: path.join(__dirname, 'app', 'assets', 'js', 'preloader.js'),
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
+            webSecurity: false // Отключаем web security для загрузки HTTP ресурсов
         },
         backgroundColor: '#171614'
     })
     remoteMain.enable(win.webContents)
+
+    // Разрешаем загрузку внешних ресурсов для скинов и серверов
+    win.webContents.session.webRequest.onBeforeRequest((details, callback) => {
+        const url = details.url
+        if (url.includes('skinsystem.ely.by') || url.includes('mc-heads.net') || url.includes('authserver.ely.by') || url.includes('textures.minecraft.net') || url.includes('helios-files.geekcorner.eu.org') || url.includes('github.com') || url.includes('ely.by')) {
+            callback({ cancel: false })
+        } else {
+            callback({})
+        }
+    })
 
     const data = {
         bkid: Math.floor((Math.random() * fs.readdirSync(path.join(__dirname, 'app', 'assets', 'images', 'backgrounds')).length)),

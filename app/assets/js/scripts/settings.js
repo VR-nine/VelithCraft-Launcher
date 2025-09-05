@@ -343,12 +343,14 @@ const msftLoginLogger = LoggerUtil.getLogger('Microsoft Login')
 const msftLogoutLogger = LoggerUtil.getLogger('Microsoft Logout')
 
 // Bind the add mojang account button.
-document.getElementById('settingsAddMojangAccount').onclick = (e) => {
-    switchView(getCurrentView(), VIEWS.login, 500, 500, () => {
-        loginViewOnCancel = VIEWS.settings
-        loginViewOnSuccess = VIEWS.settings
-        loginCancelEnabled(true)
-    })
+if(document.getElementById('settingsAddMojangAccount')) {
+    document.getElementById('settingsAddMojangAccount').onclick = (e) => {
+        switchView(getCurrentView(), VIEWS.login, 500, 500, () => {
+            loginViewOnCancel = VIEWS.settings
+            loginViewOnSuccess = VIEWS.settings
+            loginCancelEnabled(true)
+        })
+    }
 }
 
 // Bind the add ely account button.
@@ -654,7 +656,7 @@ const settingsCurrentMojangAccounts = document.getElementById('settingsCurrentMo
 /**
  * Add auth account elements for each one stored in the authentication database.
  */
-function populateAuthAccounts(){
+async function populateAuthAccounts(){
     const authAccounts = ConfigManager.getAuthAccounts()
     const authKeys = Object.keys(authAccounts)
     if(authKeys.length === 0){
@@ -666,12 +668,23 @@ function populateAuthAccounts(){
     let elyAuthAccountStr = ''
     let mojangAuthAccountStr = ''
 
-    authKeys.forEach((val) => {
+    // Обрабатываем аккаунты асинхронно
+    for (const val of authKeys) {
         const acc = authAccounts[val]
+        
+        // Получаем URL скина асинхронно (используем 'head' для отображения только головы)
+        let skinUrl = `https://mc-heads.net/head/${acc.uuid}/60` // fallback
+        if (window.SkinManager) {
+            try {
+                skinUrl = await window.SkinManager.getSkinUrl(acc, 'head', 60)
+            } catch (error) {
+                console.error('Error getting skin URL:', error)
+            }
+        }
 
         const accHtml = `<div class="settingsAuthAccount" uuid="${acc.uuid}">
             <div class="settingsAuthAccountLeft">
-                <img class="settingsAuthAccountImage" alt="${acc.displayName}" src="https://mc-heads.net/body/${acc.uuid}/60">
+                <div class="settingsAuthAccountImage" style="background-image: url('${skinUrl}'); background-size: 480px 480px; background-position: -60px -60px; width: 60px; height: 60px; image-rendering: pixelated;"></div>
             </div>
             <div class="settingsAuthAccountRight">
                 <div class="settingsAuthAccountDetails">
@@ -700,19 +713,24 @@ function populateAuthAccounts(){
         } else {
             mojangAuthAccountStr += accHtml
         }
+    }
 
-    })
-
-    settingsCurrentMicrosoftAccounts.innerHTML = microsoftAuthAccountStr
-    settingsCurrentElyAccounts.innerHTML = elyAuthAccountStr
-    settingsCurrentMojangAccounts.innerHTML = mojangAuthAccountStr
+    if (settingsCurrentMicrosoftAccounts) {
+        settingsCurrentMicrosoftAccounts.innerHTML = microsoftAuthAccountStr
+    }
+    if (settingsCurrentElyAccounts) {
+        settingsCurrentElyAccounts.innerHTML = elyAuthAccountStr
+    }
+    if (settingsCurrentMojangAccounts) {
+        settingsCurrentMojangAccounts.innerHTML = mojangAuthAccountStr
+    }
 }
 
 /**
  * Prepare the accounts tab for display.
  */
-function prepareAccountsTab() {
-    populateAuthAccounts()
+async function prepareAccountsTab() {
+    await populateAuthAccounts()
     bindAuthAccountSelect()
     bindAuthAccountLogOut()
 }
@@ -1372,7 +1390,7 @@ function populateMemoryStatus(){
 async function populateJavaExecDetails(execPath){
     const server = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
 
-    const details = await validateSelectedJvm(ensureJavaDirIsRoot(execPath), server.effectiveJavaOptions.supported)
+    const details = await window.validateSelectedJvm(window.ensureJavaDirIsRoot(execPath), server.effectiveJavaOptions.supported)
 
     if(details != null) {
         settingsJavaExecDetails.innerHTML = Lang.queryJS('settings.java.selectedJava', { version: details.semverStr, vendor: details.vendor })

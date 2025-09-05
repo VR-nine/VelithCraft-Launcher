@@ -176,7 +176,7 @@ document.getElementById('serverSelectConfirm').addEventListener('click', async (
     for(let i=0; i<listings.length; i++){
         if(listings[i].hasAttribute('selected')){
             const serv = (await DistroAPI.getDistribution()).getServerById(listings[i].getAttribute('servid'))
-            updateSelectedServer(serv)
+            window.updateSelectedServer(serv)
             refreshServerStatus(true)
             toggleOverlay(false)
             return
@@ -185,7 +185,7 @@ document.getElementById('serverSelectConfirm').addEventListener('click', async (
     // None are selected? Not possible right? Meh, handle it.
     if(listings.length > 0){
         const serv = (await DistroAPI.getDistribution()).getServerById(listings[i].getAttribute('servid'))
-        updateSelectedServer(serv)
+        window.updateSelectedServer(serv)
         toggleOverlay(false)
     }
 })
@@ -299,18 +299,28 @@ async function populateServerListings(){
 
 }
 
-function populateAccountListings(){
+async function populateAccountListings(){
     const accountsObj = ConfigManager.getAuthAccounts()
     const accounts = Array.from(Object.keys(accountsObj), v=>accountsObj[v])
     let htmlString = ''
+    
     for(let i=0; i<accounts.length; i++){
+        // Получаем URL скина асинхронно
+        let skinUrl = `https://mc-heads.net/head/${accounts[i].uuid}/40` // fallback
+        if (window.SkinManager) {
+            try {
+                skinUrl = await window.SkinManager.getSkinUrl(accounts[i], 'head', 40)
+            } catch (error) {
+                console.error('Error getting skin URL:', error)
+            }
+        }
+        
         htmlString += `<button class="accountListing" uuid="${accounts[i].uuid}" ${i===0 ? 'selected' : ''}>
-            <img src="https://mc-heads.net/head/${accounts[i].uuid}/40">
+            <img src="${skinUrl}">
             <div class="accountListingName">${accounts[i].displayName}</div>
         </button>`
     }
     document.getElementById('accountSelectListScrollable').innerHTML = htmlString
-
 }
 
 async function prepareServerSelectionList(){
@@ -318,7 +328,7 @@ async function prepareServerSelectionList(){
     setServerListingHandlers()
 }
 
-function prepareAccountSelectionList(){
-    populateAccountListings()
+async function prepareAccountSelectionList(){
+    await populateAccountListings()
     setAccountListingHandlers()
 }
