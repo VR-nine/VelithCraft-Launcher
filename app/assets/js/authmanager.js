@@ -15,6 +15,7 @@ const { RestResponseStatus } = require('helios-core/common')
 const { MojangRestAPI, MojangErrorCode } = require('helios-core/mojang')
 const { MicrosoftAuth, MicrosoftErrorCode } = require('helios-core/microsoft')
 const { AZURE_CLIENT_ID }    = require('./ipcconstants')
+const { ElyRestAPI, ElyErrorCode, elyErrorDisplayable } = require('./elyauth')
 const Lang = require('./langloader')
 
 const log = LoggerUtil.getLogger('AuthManager')
@@ -418,8 +419,127 @@ exports.validateSelected = async function(){
 
     if(current.type === 'microsoft') {
         return await validateSelectedMicrosoftAccount()
+    } else if(current.type === 'ely') {
+        return await validateSelectedElyAccount()
     } else {
         return await validateSelectedMojangAccount()
     }
     
+}
+
+/**
+ * Добавить аккаунт ely.by. Это выполнит аутентификацию с использованием 
+ * учетных данных через сервер авторизации ely.by. Результирующие данные 
+ * будут сохранены как аккаунт авторизации в базе данных конфигурации.
+ * 
+ * @param {string} username Имя пользователя (ник или email).
+ * @param {string} password Пароль пользователя.
+ * @param {string} totpToken Опциональный TOTP токен для двухфакторной аутентификации.
+ * @returns {Promise.<Object>} Promise который разрешается объектом аутентифицированного аккаунта.
+ */
+exports.addElyAccount = async function(username, password, totpToken = null) {
+    try {
+        // Если передан TOTP токен, добавляем его к паролю
+        const passwordWithToken = totpToken ? `${password}:${totpToken}` : password
+        
+        const response = await ElyRestAPI.authenticate(username, passwordWithToken, ConfigManager.getClientToken())
+        
+        if(response.responseStatus === RestResponseStatus.SUCCESS) {
+            const session = response.data
+            
+            if(session.selectedProfile != null) {
+                const ret = ConfigManager.addElyAuthAccount(
+                    session.selectedProfile.id, 
+                    session.accessToken, 
+                    username, 
+                    session.selectedProfile.name
+                )
+                
+                if(ConfigManager.getClientToken() == null) {
+                    ConfigManager.setClientToken(session.clientToken)
+                }
+                
+                ConfigManager.save()
+                return ret
+            } else {
+                return Promise.reject(elyErrorDisplayable(ElyErrorCode.FORBIDDEN_OPERATION))
+            }
+        } else {
+            // Проверяем, требуется ли двухфакторная аутентификация
+            if(response.elyErrorCode === ElyErrorCode.TWO_FACTOR_REQUIRED) {
+                return Promise.reject({
+                    requiresTwoFactor: true,
+                    error: elyErrorDisplayable(ElyErrorCode.TWO_FACTOR_REQUIRED)
+                })
+            }
+            
+            return Promise.reject(elyErrorDisplayable(response.elyErrorCode))
+        }
+        
+    } catch (err) {
+        log.error(err)
+        return Promise.reject(elyErrorDisplayable(ElyErrorCode.UNKNOWN))
+    }
+}
+
+/**
+ * Удалить аккаунт ely.by. Это инвалидирует токен доступа, связанный
+ * с аккаунтом, а затем удалит его из базы данных.
+ * 
+ * @param {string} uuid UUID аккаунта для удаления.
+ * @returns {Promise.<void>} Promise который разрешается в void когда действие завершено.
+ */
+exports.removeElyAccount = async function(uuid) {
+    try {
+        const authAcc = ConfigManager.getAuthAccount(uuid)
+        const response = await ElyRestAPI.invalidate(authAcc.accessToken, ConfigManager.getClientToken())
+        
+        if(response.responseStatus === RestResponseStatus.SUCCESS) {
+            ConfigManager.removeAuthAccount(uuid)
+            ConfigManager.save()
+            return Promise.resolve()
+        } else {
+            log.error('Ошибка при удалении аккаунта', response.error)
+            return Promise.reject(response.error)
+        }
+    } catch (err) {
+        log.error('Ошибка при удалении аккаунта', err)
+        return Promise.reject(err)
+    }
+}
+
+/**
+ * Валидация выбранного аккаунта ely.by с сервером авторизации ely.by. 
+ * Если аккаунт не валиден, мы попытаемся обновить токен доступа и 
+ * обновить это значение. Если это не удается, потребуется новый вход.
+ * 
+ * @returns {Promise.<boolean>} Promise который разрешается в true если токен доступа валиден,
+ * иначе false.
+ */
+async function validateSelectedElyAccount() {
+    const current = ConfigManager.getSelectedAccount()
+    const response = await ElyRestAPI.validate(current.accessToken, ConfigManager.getClientToken())
+
+    if(response.responseStatus === RestResponseStatus.SUCCESS) {
+        const isValid = response.data
+        if(!isValid) {
+            const refreshResponse = await ElyRestAPI.refresh(current.accessToken, ConfigManager.getClientToken())
+            if(refreshResponse.responseStatus === RestResponseStatus.SUCCESS) {
+                const session = refreshResponse.data
+                ConfigManager.updateElyAuthAccount(current.uuid, session.accessToken)
+                ConfigManager.save()
+            } else {
+                log.error('Ошибка при валидации выбранного профиля:', refreshResponse.error)
+                log.info('Токен доступа аккаунта невалиден.')
+                return false
+            }
+            log.info('Токен доступа аккаунта валидирован.')
+            return true
+        } else {
+            log.info('Токен доступа аккаунта валидирован.')
+            return true
+        }
+    }
+    
+    return false
 }

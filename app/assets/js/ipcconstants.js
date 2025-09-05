@@ -26,3 +26,13 @@ exports.MSFT_ERROR = {
 exports.SHELL_OPCODE = {
     TRASH_ITEM: 'TRASH_ITEM'
 }
+
+// Ely.by Configuration
+exports.ELY_CONFIG = {
+    AUTH_SERVER_URL: 'https://authserver.ely.by',
+    SESSION_SERVER_URL: 'https://authserver.ely.by',
+    ERROR_CODES: {
+        ILLEGAL_ARGUMENT: 'IllegalArgumentException',
+        FORBIDDEN_OPERATION: 'ForbiddenOperationException'
+    }
+}

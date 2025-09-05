@@ -187,7 +187,14 @@ loginButton.addEventListener('click', () => {
     // Show loading stuff.
     loginLoading(true)
 
-    AuthManager.addMojangAccount(loginUsername.value, loginPassword.value).then((value) => {
+    // Определяем тип авторизации
+    const isElyLogin = window.isElyLogin || false
+    
+    const authPromise = isElyLogin 
+        ? AuthManager.addElyAccount(loginUsername.value, loginPassword.value)
+        : AuthManager.addMojangAccount(loginUsername.value, loginPassword.value)
+
+    authPromise.then((value) => {
         updateSelectedAccount(value)
         loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.loggingIn'), Lang.queryJS('login.success'))
         $('.circle-loader').toggleClass('load-complete')
@@ -213,6 +220,13 @@ loginButton.addEventListener('click', () => {
     }).catch((displayableError) => {
         loginLoading(false)
 
+        // Проверяем, требуется ли двухфакторная аутентификация для ely.by
+        if (isElyLogin && displayableError.requiresTwoFactor) {
+            // Показываем диалог для ввода TOTP токена
+            showTwoFactorDialog(loginUsername.value, loginPassword.value)
+            return
+        }
+
         let actualDisplayableError
         if(isDisplayableError(displayableError)) {
             msftLoginLogger.error('Error while logging in.', displayableError)
@@ -232,3 +246,128 @@ loginButton.addEventListener('click', () => {
     })
 
 })
+
+/**
+ * Показать диалог для ввода TOTP токена двухфакторной аутентификации
+ * 
+ * @param {string} username Имя пользователя
+ * @param {string} password Пароль пользователя
+ */
+function showTwoFactorDialog(username, password) {
+    // Создаем диалог для ввода TOTP токена
+    const totpDialog = document.createElement('div')
+    totpDialog.id = 'totpDialog'
+    totpDialog.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    `
+    
+    totpDialog.innerHTML = `
+        <div style="background: #2c2c2c; padding: 30px; border-radius: 10px; max-width: 400px; width: 90%;">
+            <h3 style="color: #fff; margin-bottom: 20px; text-align: center;">Двухфакторная аутентификация</h3>
+            <p style="color: #ccc; margin-bottom: 20px; text-align: center;">
+                Введите код из вашего приложения аутентификатора:
+            </p>
+            <input type="text" id="totpToken" placeholder="000000" maxlength="6" 
+                   style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #555; 
+                          background: #333; color: #fff; border-radius: 5px; text-align: center; font-size: 18px;">
+            <div style="display: flex; gap: 10px;">
+                <button id="totpCancel" style="flex: 1; padding: 10px; background: #666; color: #fff; 
+                        border: none; border-radius: 5px; cursor: pointer;">Отмена</button>
+                <button id="totpSubmit" style="flex: 1; padding: 10px; background: #4CAF50; color: #fff; 
+                        border: none; border-radius: 5px; cursor: pointer;">Подтвердить</button>
+            </div>
+        </div>
+    `
+    
+    document.body.appendChild(totpDialog)
+    
+    const totpTokenInput = document.getElementById('totpToken')
+    const totpCancelBtn = document.getElementById('totpCancel')
+    const totpSubmitBtn = document.getElementById('totpSubmit')
+    
+    // Фокус на поле ввода
+    totpTokenInput.focus()
+    
+    // Обработчики событий
+    totpCancelBtn.onclick = () => {
+        document.body.removeChild(totpDialog)
+        formDisabled(false)
+        window.isElyLogin = false // Сбрасываем флаг
+    }
+    
+    totpSubmitBtn.onclick = () => {
+        const totpToken = totpTokenInput.value.trim()
+        if (totpToken.length !== 6) {
+            alert('Пожалуйста, введите 6-значный код')
+            return
+        }
+        
+        // Удаляем диалог
+        document.body.removeChild(totpDialog)
+        
+        // Показываем загрузку
+        loginLoading(true)
+        
+        // Повторяем авторизацию с TOTP токеном
+        AuthManager.addElyAccount(username, password, totpToken).then((value) => {
+            updateSelectedAccount(value)
+            loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.loggingIn'), Lang.queryJS('login.success'))
+            $('.circle-loader').toggleClass('load-complete')
+            $('.checkmark').toggle()
+            setTimeout(() => {
+                switchView(VIEWS.login, loginViewOnSuccess, 500, 500, async () => {
+                    // Temporary workaround
+                    if(loginViewOnSuccess === VIEWS.settings){
+                        await prepareSettings()
+                    }
+                    loginViewOnSuccess = VIEWS.landing // Reset this for good measure.
+                    loginCancelEnabled(false) // Reset this for good measure.
+                    loginViewCancelHandler = null // Reset this for good measure.
+                    loginUsername.value = ''
+                    loginPassword.value = ''
+                    $('.circle-loader').toggleClass('load-complete')
+                    $('.checkmark').toggle()
+                    loginLoading(false)
+                    loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.success'), Lang.queryJS('login.login'))
+                    formDisabled(false)
+                    window.isElyLogin = false // Сбрасываем флаг
+                })
+            }, 1000)
+        }).catch((displayableError) => {
+            loginLoading(false)
+            
+            let actualDisplayableError
+            if(isDisplayableError(displayableError)) {
+                msftLoginLogger.error('Error while logging in with TOTP.', displayableError)
+                actualDisplayableError = displayableError
+            } else {
+                msftLoginLogger.error('Unhandled error during TOTP login.', displayableError)
+                actualDisplayableError = Lang.queryJS('login.error.unknown')
+            }
+
+            setOverlayContent(actualDisplayableError.title, actualDisplayableError.desc, Lang.queryJS('login.tryAgain'))
+            setOverlayHandler(() => {
+                formDisabled(false)
+                toggleOverlay(false)
+                window.isElyLogin = false // Сбрасываем флаг
+            })
+            toggleOverlay(true)
+        })
+    }
+    
+    // Обработка Enter в поле ввода
+    totpTokenInput.onkeypress = (e) => {
+        if (e.key === 'Enter') {
+            totpSubmitBtn.click()
+        }
+    }
+}

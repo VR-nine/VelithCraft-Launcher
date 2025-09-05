@@ -371,32 +371,37 @@ exports.updateMicrosoftAuthAccount = function(uuid, accessToken, msAccessToken, 
 }
 
 /**
- * Adds an authenticated microsoft account to the database to be stored.
+ * Update the access token of an authenticated ely account.
  * 
  * @param {string} uuid The uuid of the authenticated account.
- * @param {string} accessToken The accessToken of the authenticated account.
- * @param {string} name The in game name of the authenticated account.
- * @param {date} mcExpires The date when the mojang access token expires
- * @param {string} msAccessToken The microsoft access token
- * @param {string} msRefreshToken The microsoft refresh token
- * @param {date} msExpires The date when the microsoft access token expires
+ * @param {string} accessToken The new Access Token.
  * 
  * @returns {Object} The authenticated account object created by this action.
  */
-exports.addMicrosoftAuthAccount = function(uuid, accessToken, name, mcExpires, msAccessToken, msRefreshToken, msExpires) {
+exports.updateElyAuthAccount = function(uuid, accessToken){
+    config.authenticationDatabase[uuid].accessToken = accessToken
+    config.authenticationDatabase[uuid].type = 'ely'
+    return config.authenticationDatabase[uuid]
+}
+
+/**
+ * Adds an authenticated ely account to the database to be stored.
+ * 
+ * @param {string} uuid The uuid of the authenticated account.
+ * @param {string} accessToken The accessToken of the authenticated account.
+ * @param {string} username The username (usually email) of the authenticated account.
+ * @param {string} displayName The in game name of the authenticated account.
+ * 
+ * @returns {Object} The authenticated account object created by this action.
+ */
+exports.addElyAuthAccount = function(uuid, accessToken, username, displayName){
     config.selectedAccount = uuid
     config.authenticationDatabase[uuid] = {
-        type: 'microsoft',
+        type: 'ely',
         accessToken,
-        username: name.trim(),
+        username: username.trim(),
         uuid: uuid.trim(),
-        displayName: name.trim(),
-        expiresAt: mcExpires,
-        microsoft: {
-            access_token: msAccessToken,
-            refresh_token: msRefreshToken,
-            expires_at: msExpires
-        }
+        displayName: displayName.trim()
     }
     return config.authenticationDatabase[uuid]
 }

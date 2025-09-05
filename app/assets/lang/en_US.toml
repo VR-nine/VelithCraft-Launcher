@@ -343,3 +343,13 @@ gameNotPurchasedTitle = "Error During Login:<br>Game Not Purchased"
 gameNotPurchasedDesc = "The account you are trying to login with has not purchased a copy of Minecraft. You may purchase a copy on <a href=\"https://minecraft.net/\">Minecraft.net</a>"
 unknownErrorTitle = "Unknown Error During Login"
 unknownErrorDesc = "An unknown error has occurred. Please see the console for details."
+
+[js.auth.ely.error]
+illegalArgumentTitle = "Error During Login:<br>Invalid Request"
+illegalArgumentDesc = "The request contains invalid or missing data. Please check your input and try again."
+forbiddenOperationTitle = "Error During Login:<br>Invalid Credentials"
+forbiddenOperationDesc = "The username or password you've entered is incorrect. Please try again."
+twoFactorRequiredTitle = "Two-Factor Authentication Required"
+twoFactorRequiredDesc = "Your account is protected with two-factor authentication. Please enter the code from your authenticator app."
+unknownTitle = "Unknown Error During Login"
+unknownDesc = "An unknown error has occurred. Please see the console for details."

@@ -1,4 +1,5 @@
 const loginOptionsCancelContainer = document.getElementById('loginOptionCancelContainer')
+const loginOptionEly = document.getElementById('loginOptionEly')
 const loginOptionMicrosoft = document.getElementById('loginOptionMicrosoft')
 const loginOptionMojang = document.getElementById('loginOptionMojang')
 const loginOptionsCancelButton = document.getElementById('loginOptionCancelButton')
@@ -16,6 +17,16 @@ function loginOptionsCancelEnabled(val){
     } else {
         $(loginOptionsCancelContainer).hide()
     }
+}
+
+loginOptionEly.onclick = (e) => {
+    switchView(getCurrentView(), VIEWS.login, 500, 500, () => {
+        loginViewOnSuccess = loginOptionsViewOnLoginSuccess
+        loginViewOnCancel = loginOptionsViewOnLoginCancel
+        loginCancelEnabled(true)
+        // Устанавливаем флаг для использования ely.by авторизации
+        window.isElyLogin = true
+    })
 }
 
 loginOptionMicrosoft.onclick = (e) => {
