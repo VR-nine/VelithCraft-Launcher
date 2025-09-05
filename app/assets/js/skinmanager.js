@@ -1,56 +1,52 @@
 /**
  * SkinManager
  * 
- * Модуль для управления скинами игроков из разных источников.
- * Поддерживает Mojang, Microsoft и Ely.by скины.
+ * Module for managing player skins from different sources.
+ * Supports Mojang, Microsoft, and Ely.by skins.
  * 
  * @module skinmanager
  */
 
 /**
- * Получить URL скина для аккаунта
+ * Get the skin URL for an account
  * 
- * @param {Object} account Объект аккаунта
- * @param {string} type Тип скина ('head', 'body', 'avatar')
- * @param {number} size Размер изображения
- * @returns {Promise<string>} URL скина
+ * @param {Object} account Account object
+ * @param {string} type Skin type ('head', 'body', 'avatar')
+ * @param {number} size Image size
+ * @returns {Promise<string>} Skin URL
  */
+
 async function getSkinUrl(account, type = 'head', size = 40) {
     if (!account || !account.uuid) {
-        console.log('SkinManager: No account or UUID provided, using default skin')
         return getDefaultSkinUrl(type, size)
     }
 
-    console.log('SkinManager: Getting skin for account:', account.type, account.uuid, account.username, type, size)
 
     switch (account.type) {
         case 'ely':
-            // Для Ely.by используем username вместо UUID
+            // For Ely.by use username instead of UUID
             if (account.username) {
                 const elyUrl = await getElySkinUrlByNickname(account.username, type, size)
-                console.log('SkinManager: Ely.by skin URL (by username):', elyUrl)
                 return elyUrl
             } else {
-                // Fallback на скин по умолчанию если username недоступен
-                console.log('SkinManager: No username available for Ely.by account, using default skin')
+                // Fallback to default skin if username is not available
                 return getDefaultSkinUrl(type, size)
             }
         case 'microsoft':
         case 'mojang':
         default:
             const mojangUrl = getMojangSkinUrl(account.uuid, type, size)
-            console.log('SkinManager: Mojang skin URL:', mojangUrl)
             return mojangUrl
     }
 }
 
 /**
- * Получить URL скина из Mojang/mc-heads
+ * Get skin URL from Mojang/mc-heads
  * 
- * @param {string} uuid UUID игрока
- * @param {string} type Тип скина
- * @param {number} size Размер
- * @returns {string} URL скина
+ * @param {string} uuid Player UUID
+ * @param {string} type Skin type
+ * @param {number} size Size
+ * @returns {string} Skin URL
  */
 function getMojangSkinUrl(uuid, type, size) {
     const baseUrl = 'https://mc-heads.net'
@@ -68,16 +64,15 @@ function getMojangSkinUrl(uuid, type, size) {
 }
 
 /**
- * Получить информацию о текстурах из Ely.by API
+ * Get texture information from Ely.by API
  * 
- * @param {string} username Ник игрока
- * @returns {Promise<Object>} Информация о текстурах
+ * @param {string} username Player nickname
+ * @returns {Promise<Object>} Texture information
  */
 async function getElyTexturesInfo(username) {
     try {
-        console.log('SkinManager: Getting Ely.by textures info for username:', username)
         
-        // Используем простой endpoint skinsystem.ely.by
+        // Use simple endpoint skinsystem.ely.by
         const response = await fetch(`http://skinsystem.ely.by/profile/${username}`)
         
         if (!response.ok) {
@@ -88,12 +83,12 @@ async function getElyTexturesInfo(username) {
         const data = await response.json()
         console.log('SkinManager: Ely.by profile info:', data)
         
-        // Ищем свойство textures в properties
+        // Look for textures property in properties
         if (data.properties && Array.isArray(data.properties)) {
             const texturesProperty = data.properties.find(prop => prop.name === "textures")
             if (texturesProperty) {
                 try {
-                    // Декодируем base64 значение
+                    // Decode base64 value
                     const decodedValue = JSON.parse(atob(texturesProperty.value))
                     console.log('SkinManager: Decoded textures info:', decodedValue)
                     return decodedValue
@@ -116,18 +111,18 @@ async function getElyTexturesInfo(username) {
 }
 
 /**
- * Получить URL скина из Ely.by по nickname
+ * Get skin URL from Ely.by by nickname
  * 
- * @param {string} nickname Ник игрока
- * @param {string} type Тип скина
- * @param {number} size Размер
- * @returns {Promise<string>} URL скина
+ * @param {string} nickname Player nickname
+ * @param {string} type Skin type
+ * @param {number} size Size
+ * @returns {Promise<string>} Skin URL
  */
 async function getElySkinUrlByNickname(nickname, type, size) {
     console.log('SkinManager: Getting Ely.by skin by nickname:', nickname)
     
     try {
-        // Получаем информацию о текстурах напрямую по nickname
+        // Get textures info directly by nickname
         const texturesInfo = await getElyTexturesInfo(nickname)
         
         if (!texturesInfo || !texturesInfo.textures || !texturesInfo.textures.SKIN) {
@@ -135,11 +130,11 @@ async function getElySkinUrlByNickname(nickname, type, size) {
             return getDefaultSkinUrl(type, size)
         }
         
-        // Извлекаем URL скина
+        // Extract skin URL
         const skinUrl = texturesInfo.textures.SKIN.url
         console.log('SkinManager: Ely.by skin URL:', skinUrl)
         
-        // Возвращаем оригинальный URL скина напрямую
+        // Return original skin URL directly
         return skinUrl
         
     } catch (error) {
@@ -150,15 +145,15 @@ async function getElySkinUrlByNickname(nickname, type, size) {
 
 
 /**
- * Получить URL скина из Ely.by по хешу скина
+ * Get skin URL from Ely.by by skin hash
  * 
- * @param {string} skinHash Хеш скина
- * @param {string} type Тип скина
- * @param {number} size Размер
- * @returns {string} URL скина
+ * @param {string} skinHash Skin hash
+ * @param {string} type Skin type
+ * @param {number} size Size
+ * @returns {string} Skin URL
  */
 function getElySkinUrlByHash(skinHash, type, size) {
-    // Ely.by использует формат: https://ely.by/storage/skins/{hash}.png
+    // Ely.by uses format: https://ely.by/storage/skins/{hash}.png
     const baseUrl = 'https://ely.by/storage/skins'
     
     switch (type) {
@@ -174,17 +169,17 @@ function getElySkinUrlByHash(skinHash, type, size) {
 }
 
 /**
- * Проверить доступность Ely.by API
+ * Check Ely.by API availability
  * 
- * @returns {Promise<boolean>} Доступен ли Ely.by API
+ * @returns {Promise<boolean>} Whether Ely.by API is available
  */
 async function checkElyByAvailability() {
     try {
         const response = await fetch('https://ely.by/storage/skins/test.png', { 
             method: 'HEAD',
-            timeout: 5000 // 5 секунд таймаут
+            timeout: 5000 // 5 seconds timeout
         })
-        return response.ok || response.status === 404 // 404 тоже нормально для тестового запроса
+        return response.ok || response.status === 404 // 404 is also normal for test request
     } catch (error) {
         console.log('SkinManager: Ely.by API unavailable:', error.message)
         return false
@@ -192,19 +187,19 @@ async function checkElyByAvailability() {
 }
 
 /**
- * Создать URL для отображения только головы из текстуры скина
+ * Create URL for displaying only head from skin texture
  * 
- * @param {string} skinUrl URL полной текстуры скина
- * @param {number} size Размер головы
- * @returns {string} URL для отображения головы
+ * @param {string} skinUrl Full skin texture URL
+ * @param {number} size Head size
+ * @returns {string} URL for head display
  */
 function createHeadUrl(skinUrl, size = 40) {
-    // Для Ely.by и других источников, которые возвращают полную текстуру,
-    // мы можем использовать CSS для обрезки головы
-    // Голова в Minecraft текстуре находится в координатах 8,8 размером 8x8 пикселей
-    // из текстуры 64x64 пикселей
+    // For Ely.by and other sources that return full texture,
+    // we can use CSS to crop the head
+    // Head in Minecraft texture is located at coordinates 8,8 with size 8x8 pixels
+    // from 64x64 pixel texture
     
-    // Создаем CSS стиль для обрезки головы
+    // Create CSS style for head cropping
     const headStyle = `
         background-image: url('${skinUrl}');
         background-size: ${size * 8}px ${size * 8}px;
@@ -218,11 +213,11 @@ function createHeadUrl(skinUrl, size = 40) {
 }
 
 /**
- * Обновить элемент с обрезанной головой игрока
+ * Update element with cropped player head
  * 
- * @param {HTMLElement} element Элемент для обновления
- * @param {Object} account Объект аккаунта
- * @param {number} size Размер головы
+ * @param {HTMLElement} element Element to update
+ * @param {Object} account Account object
+ * @param {number} size Head size
  */
 function updateHeadInElement(element, account, size = 40) {
     if (!element) {
@@ -230,27 +225,27 @@ function updateHeadInElement(element, account, size = 40) {
         return
     }
     
-    // Используем асинхронную функцию для получения URL скина
+    // Use async function to get skin URL
     getSkinUrl(account, 'head', size).then(skinUrl => {
         console.log('SkinManager: Updating element with head from skin URL:', skinUrl)
         
-        // Применяем стиль для обрезки головы
+        // Apply style for head cropping
         const headStyle = createHeadUrl(skinUrl, size)
         element.style.cssText = headStyle
         
         console.log('SkinManager: Applied head style to element')
         
-        // Добавляем обработчик ошибок для fallback
+        // Add error handler for fallback
         element.onerror = () => {
             console.log('SkinManager: Head image failed to load, trying fallback')
             
-            // Если это Ely.by скин, попробуем fallback на mc-heads.net
+            // If this is Ely.by skin, try fallback to mc-heads.net
             if (account.type === 'ely') {
                 const fallbackUrl = `https://mc-heads.net/head/${account.uuid}/${size}`
                 console.log('SkinManager: Trying mc-heads.net fallback for head:', fallbackUrl)
                 element.style.cssText = createHeadUrl(fallbackUrl, size)
                 
-                // Если и fallback не работает, используем скин по умолчанию
+                // If fallback also fails, use default skin
                 element.onerror = () => {
                     console.log('SkinManager: Fallback also failed, using default head')
                     const defaultUrl = getDefaultSkinUrl('head', size)
@@ -264,27 +259,27 @@ function updateHeadInElement(element, account, size = 40) {
         }
     }).catch(error => {
         console.error('SkinManager: Error getting skin URL:', error)
-        // В случае ошибки используем скин по умолчанию
+        // In case of error use default skin
         const defaultUrl = getDefaultSkinUrl('head', size)
         element.style.cssText = createHeadUrl(defaultUrl, size)
     })
 }
 
 /**
- * Получить URL скина из Ely.by
+ * Get skin URL from Ely.by
  * 
- * @param {string} uuid UUID игрока
- * @param {string} type Тип скина
- * @param {number} size Размер
- * @returns {string} URL скина
+ * @param {string} uuid Player UUID
+ * @param {string} type Skin type
+ * @param {number} size Size
+ * @returns {string} Skin URL
  */
 function getElySkinUrl(uuid, type, size) {
-    // Ely.by использует систему скинов на skinsystem.ely.by
-    // URL формат: http://skinsystem.ely.by/skins/{nickname}.png
-    // Но нам нужен nickname, а не UUID
+    // Ely.by uses skin system on skinsystem.ely.by
+    // URL format: http://skinsystem.ely.by/skins/{nickname}.png
+    // But we need nickname, not UUID
     
-    // Для получения скина по UUID нужно сначала получить nickname
-    // Пока используем fallback на mc-heads.net
+    // To get skin by UUID we need to get nickname first
+    // For now use fallback to mc-heads.net
     console.log('SkinManager: Ely.by skin requested for UUID:', uuid)
     
     switch (type) {
@@ -300,25 +295,25 @@ function getElySkinUrl(uuid, type, size) {
 }
 
 /**
- * Получить URL скина по умолчанию
+ * Get default skin URL
  * 
- * @param {string} type Тип скина
- * @param {number} size Размер
- * @returns {string} URL скина по умолчанию
+ * @param {string} type Skin type
+ * @param {number} size Size
+ * @returns {string} Default skin URL
  */
 function getDefaultSkinUrl(type, size) {
-    // Возвращаем скин Стива по умолчанию
-    const steveUuid = 'c06f89064c8a49119c29ea1dbd1aab82' // UUID Стива
+    // Return default Steve skin
+    const steveUuid = 'c06f89064c8a49119c29ea1dbd1aab82' // Steve's UUID
     return getMojangSkinUrl(steveUuid, type, size)
 }
 
 /**
- * Обновить скин в элементе
+ * Update skin in element
  * 
- * @param {HTMLElement} element Элемент для обновления
- * @param {Object} account Объект аккаунта
- * @param {string} type Тип скина
- * @param {number} size Размер
+ * @param {HTMLElement} element Element to update
+ * @param {Object} account Account object
+ * @param {string} type Skin type
+ * @param {number} size Size
  */
 function updateSkinInElement(element, account, type = 'head', size = 40) {
     if (!element) {
@@ -326,7 +321,7 @@ function updateSkinInElement(element, account, type = 'head', size = 40) {
         return
     }
     
-    // Используем асинхронную функцию для получения URL скина
+    // Use async function to get skin URL
     getSkinUrl(account, type, size).then(skinUrl => {
         console.log('SkinManager: Updating element with skin URL:', skinUrl)
         
@@ -335,25 +330,25 @@ function updateSkinInElement(element, account, type = 'head', size = 40) {
             element.alt = account.displayName || 'Player'
             console.log('SkinManager: Set img src to:', skinUrl)
             
-            // Добавляем обработчик ошибок для fallback на скин по умолчанию
+            // Add error handler for fallback to default skin
             element.onerror = () => {
                 console.log('SkinManager: Image failed to load, trying fallback')
                 
-                // Если это Ely.by скин, попробуем несколько fallback вариантов
+                // If this is Ely.by skin, try several fallback options
                 if (account.type === 'ely') {
-                    // Попробуем mc-heads.net с UUID
+                    // Try mc-heads.net with UUID
                     const fallbackUrl1 = `https://mc-heads.net/head/${account.uuid}/${size}`
                     console.log('SkinManager: Trying mc-heads.net fallback (UUID):', fallbackUrl1)
                     element.src = fallbackUrl1
                     
-                    // Если и это не работает, попробуем mc-heads.net с username
+                    // If that doesn't work, try mc-heads.net with username
                     element.onerror = () => {
                         if (account.username) {
                             const fallbackUrl2 = `https://mc-heads.net/head/${account.username}/${size}`
                             console.log('SkinManager: Trying mc-heads.net fallback (username):', fallbackUrl2)
                             element.src = fallbackUrl2
                             
-                            // Если и это не работает, используем скин по умолчанию
+                            // If that doesn't work either, use default skin
                             element.onerror = () => {
                                 console.log('SkinManager: All fallbacks failed, using default skin')
                                 element.src = getDefaultSkinUrl(type, size)
@@ -369,12 +364,13 @@ function updateSkinInElement(element, account, type = 'head', size = 40) {
                 }
             }
         } else {
+            // Set background image
             element.style.backgroundImage = `url('${skinUrl}')`
             console.log('SkinManager: Set background image to:', skinUrl)
         }
     }).catch(error => {
         console.error('SkinManager: Error getting skin URL:', error)
-        // В случае ошибки используем скин по умолчанию
+        // In case of error use default skin
         const defaultUrl = getDefaultSkinUrl(type, size)
         if (element.tagName === 'IMG') {
             element.src = defaultUrl
@@ -385,10 +381,10 @@ function updateSkinInElement(element, account, type = 'head', size = 40) {
 }
 
 /**
- * Проверить, доступен ли скин
+ * Check if skin is available
  * 
- * @param {string} url URL скина
- * @returns {Promise<boolean>} Доступен ли скин
+ * @param {string} url Skin URL
+ * @returns {Promise<boolean>} Whether skin is available
  */
 async function checkSkinAvailability(url) {
     try {
@@ -399,7 +395,7 @@ async function checkSkinAvailability(url) {
     }
 }
 
-// Экспортируем функции
+// Export functions
 module.exports = {
     getSkinUrl,
     getMojangSkinUrl,

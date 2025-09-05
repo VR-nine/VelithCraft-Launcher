@@ -187,7 +187,7 @@ loginButton.addEventListener('click', () => {
     // Show loading stuff.
     loginLoading(true)
 
-    // Определяем тип авторизации
+    // Determine authentication type
     const isElyLogin = window.isElyLogin || false
     
     const authPromise = isElyLogin 
@@ -220,9 +220,9 @@ loginButton.addEventListener('click', () => {
     }).catch((displayableError) => {
         loginLoading(false)
 
-        // Проверяем, требуется ли двухфакторная аутентификация для ely.by
+        // Check if two-factor authentication is required for ely.by
         if (isElyLogin && displayableError.requiresTwoFactor) {
-            // Показываем диалог для ввода TOTP токена
+            // Show dialog for TOTP token input
             showTwoFactorDialog(loginUsername.value, loginPassword.value)
             return
         }
@@ -248,13 +248,13 @@ loginButton.addEventListener('click', () => {
 })
 
 /**
- * Показать диалог для ввода TOTP токена двухфакторной аутентификации
+ * Show dialog for TOTP token input for two-factor authentication
  * 
- * @param {string} username Имя пользователя
- * @param {string} password Пароль пользователя
+ * @param {string} username Username
+ * @param {string} password User password
  */
 function showTwoFactorDialog(username, password) {
-    // Создаем диалог для ввода TOTP токена
+    // Create dialog for TOTP token input
     const totpDialog = document.createElement('div')
     totpDialog.id = 'totpDialog'
     totpDialog.style.cssText = `
@@ -272,9 +272,9 @@ function showTwoFactorDialog(username, password) {
     
     totpDialog.innerHTML = `
         <div style="background: #2c2c2c; padding: 30px; border-radius: 10px; max-width: 400px; width: 90%;">
-            <h3 style="color: #fff; margin-bottom: 20px; text-align: center;">Двухфакторная аутентификация</h3>
+            <h3 style="color: #fff; margin-bottom: 20px; text-align: center;"><%- lang('settings.twoFactorAuth') %></h3>
             <p style="color: #ccc; margin-bottom: 20px; text-align: center;">
-                Введите код из вашего приложения аутентификатора:
+                <%- lang('settings.enterCodeTwoFactor') %>:
             </p>
             <input type="text" id="totpToken" placeholder="000000" maxlength="6" 
                    style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #555; 
@@ -294,14 +294,14 @@ function showTwoFactorDialog(username, password) {
     const totpCancelBtn = document.getElementById('totpCancel')
     const totpSubmitBtn = document.getElementById('totpSubmit')
     
-    // Фокус на поле ввода
+    // Focus on input field
     totpTokenInput.focus()
     
-    // Обработчики событий
+    // Event handlers
     totpCancelBtn.onclick = () => {
         document.body.removeChild(totpDialog)
         formDisabled(false)
-        window.isElyLogin = false // Сбрасываем флаг
+        window.isElyLogin = false // Reset flag
     }
     
     totpSubmitBtn.onclick = () => {
@@ -311,13 +311,13 @@ function showTwoFactorDialog(username, password) {
             return
         }
         
-        // Удаляем диалог
+        // Remove dialog
         document.body.removeChild(totpDialog)
         
-        // Показываем загрузку
+        // Show loading
         loginLoading(true)
         
-        // Повторяем авторизацию с TOTP токеном
+        // Repeat authentication with TOTP token
         AuthManager.addElyAccount(username, password, totpToken).then((value) => {
             updateSelectedAccount(value)
             loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.loggingIn'), Lang.queryJS('login.success'))
@@ -339,7 +339,7 @@ function showTwoFactorDialog(username, password) {
                     loginLoading(false)
                     loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.success'), Lang.queryJS('login.login'))
                     formDisabled(false)
-                    window.isElyLogin = false // Сбрасываем флаг
+                    window.isElyLogin = false // Reset flag
                 })
             }, 1000)
         }).catch((displayableError) => {
@@ -358,13 +358,13 @@ function showTwoFactorDialog(username, password) {
             setOverlayHandler(() => {
                 formDisabled(false)
                 toggleOverlay(false)
-                window.isElyLogin = false // Сбрасываем флаг
+                window.isElyLogin = false // Reset flag
             })
             toggleOverlay(true)
         })
     }
     
-    // Обработка Enter в поле ввода
+    // Handle Enter key in input field
     totpTokenInput.onkeypress = (e) => {
         if (e.key === 'Enter') {
             totpSubmitBtn.click()

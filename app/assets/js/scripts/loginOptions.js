@@ -4,14 +4,14 @@ const loginOptionMicrosoft = document.getElementById('loginOptionMicrosoft')
 const loginOptionMojang = document.getElementById('loginOptionMojang')
 const loginOptionsCancelButton = document.getElementById('loginOptionCancelButton')
 
-// Проверяем, что элементы существуют перед привязкой событий
+// Check that elements exist before binding events
 if (loginOptionEly) {
     loginOptionEly.onclick = (e) => {
         switchView(getCurrentView(), VIEWS.login, 500, 500, () => {
             loginViewOnSuccess = loginOptionsViewOnLoginSuccess
             loginViewOnCancel = loginOptionsViewOnLoginCancel
             loginCancelEnabled(true)
-            // Устанавливаем флаг для использования ely.by авторизации
+            // Set flag for using ely.by authentication
             window.isElyLogin = true
         })
     }

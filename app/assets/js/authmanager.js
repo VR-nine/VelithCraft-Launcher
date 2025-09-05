@@ -428,18 +428,19 @@ exports.validateSelected = async function(){
 }
 
 /**
- * Добавить аккаунт ely.by. Это выполнит аутентификацию с использованием 
- * учетных данных через сервер авторизации ely.by. Результирующие данные 
- * будут сохранены как аккаунт авторизации в базе данных конфигурации.
+ * Add an Ely.by account. This performs authentication using 
+ * credentials via the Ely.by authorization server. The resulting data 
+ * will be saved as an authentication account in the configuration database.
  * 
- * @param {string} username Имя пользователя (ник или email).
- * @param {string} password Пароль пользователя.
- * @param {string} totpToken Опциональный TOTP токен для двухфакторной аутентификации.
- * @returns {Promise.<Object>} Promise который разрешается объектом аутентифицированного аккаунта.
+ * @param {string} username Username (nickname or email).
+ * @param {string} password User password.
+ * @param {string} totpToken Optional TOTP token for two-factor authentication.
+ * @returns {Promise.<Object>} Promise resolved with the authenticated account object.
  */
+
 exports.addElyAccount = async function(username, password, totpToken = null) {
     try {
-        // Если передан TOTP токен, добавляем его к паролю
+        // If TOTP token is provided, add it to password
         const passwordWithToken = totpToken ? `${password}:${totpToken}` : password
         
         const response = await ElyRestAPI.authenticate(username, passwordWithToken, ConfigManager.getClientToken())
@@ -465,7 +466,7 @@ exports.addElyAccount = async function(username, password, totpToken = null) {
                 return Promise.reject(elyErrorDisplayable(ElyErrorCode.FORBIDDEN_OPERATION))
             }
         } else {
-            // Проверяем, требуется ли двухфакторная аутентификация
+            // Check if two-factor authentication is required
             if(response.elyErrorCode === ElyErrorCode.TWO_FACTOR_REQUIRED) {
                 return Promise.reject({
                     requiresTwoFactor: true,
@@ -483,11 +484,11 @@ exports.addElyAccount = async function(username, password, totpToken = null) {
 }
 
 /**
- * Удалить аккаунт ely.by. Это инвалидирует токен доступа, связанный
- * с аккаунтом, а затем удалит его из базы данных.
+ * Remove an Ely.by account. This invalidates the access token associated
+ * with the account and then removes it from the database.
  * 
- * @param {string} uuid UUID аккаунта для удаления.
- * @returns {Promise.<void>} Promise который разрешается в void когда действие завершено.
+ * @param {string} uuid UUID of the account to remove.
+ * @returns {Promise.<void>} Promise that resolves to void when the action is completed.
  */
 exports.removeElyAccount = async function(uuid) {
     try {
@@ -499,22 +500,22 @@ exports.removeElyAccount = async function(uuid) {
             ConfigManager.save()
             return Promise.resolve()
         } else {
-            log.error('Ошибка при удалении аккаунта', response.error)
+            log.error('Error while removing an account', response.error)
             return Promise.reject(response.error)
         }
     } catch (err) {
-        log.error('Ошибка при удалении аккаунта', err)
+        log.error('Error while removing an account', err)
         return Promise.reject(err)
     }
 }
 
 /**
- * Валидация выбранного аккаунта ely.by с сервером авторизации ely.by. 
- * Если аккаунт не валиден, мы попытаемся обновить токен доступа и 
- * обновить это значение. Если это не удается, потребуется новый вход.
+ * Validate the selected Ely.by account with the Ely.by authorization server. 
+ * If the account is not valid, an attempt will be made to refresh the access token 
+ * and update its value. If this fails, a new login will be required.
  * 
- * @returns {Promise.<boolean>} Promise который разрешается в true если токен доступа валиден,
- * иначе false.
+ * @returns {Promise.<boolean>} Promise that resolves to true if the access token is valid,
+ * otherwise false.
  */
 async function validateSelectedElyAccount() {
     const current = ConfigManager.getSelectedAccount()
@@ -529,14 +530,14 @@ async function validateSelectedElyAccount() {
                 ConfigManager.updateElyAuthAccount(current.uuid, session.accessToken)
                 ConfigManager.save()
             } else {
-                log.error('Ошибка при валидации выбранного профиля:', refreshResponse.error)
-                log.info('Токен доступа аккаунта невалиден.')
+                log.error('Error validating selected profile:', refreshResponse.error)
+                log.info('The account access token is invalid')
                 return false
             }
-            log.info('Токен доступа аккаунта валидирован.')
+            log.info('The account access token has been validated')
             return true
         } else {
-            log.info('Токен доступа аккаунта валидирован.')
+            log.info('Account access token validated')
             return true
         }
     }

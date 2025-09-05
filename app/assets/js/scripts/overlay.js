@@ -305,7 +305,7 @@ async function populateAccountListings(){
     let htmlString = ''
     
     for(let i=0; i<accounts.length; i++){
-        // Получаем URL скина асинхронно
+        // Get skin URL asynchronously
         let skinUrl = `https://mc-heads.net/head/${accounts[i].uuid}/40` // fallback
         if (window.SkinManager) {
             try {

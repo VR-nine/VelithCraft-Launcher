@@ -27,7 +27,7 @@ const {
     extractJdk
 }                             = require('helios-core/java')
 
-// Делаем функции доступными глобально для других скриптов
+// Make functions globally available for other scripts
 window.validateSelectedJvm = validateSelectedJvm
 window.ensureJavaDirIsRoot = ensureJavaDirIsRoot
 window.updateSelectedServer = updateSelectedServer
@@ -154,17 +154,17 @@ function updateSelectedAccount(authUser){
             username = authUser.displayName
         }
         if(authUser.uuid != null){
-            // Используем SkinManager для получения правильного URL скина
+            // Use SkinManager to get correct skin URL
             const avatarContainer = document.getElementById('avatarContainer')
             console.log('AuthUser:', authUser)
             console.log('SkinManager available:', !!window.SkinManager)
             if (window.SkinManager) {
                 console.log('Using SkinManager for head display')
-                // Используем новый метод для отображения только головы
+                // Use new method to display only head
                 window.SkinManager.updateHeadInElement(avatarContainer, authUser, 60)
             } else {
                 console.log('Using fallback skin URL')
-                // Fallback на старый способ
+                // Fallback to old method
                 document.getElementById('avatarContainer').style.backgroundImage = `url('https://mc-heads.net/body/${authUser.uuid}/right')`
             }
         }

@@ -1,8 +1,8 @@
 /**
  * ElyAuth
  * 
- * Модуль для авторизации через сервис ely.by.
- * Реализует протокол авторизации, совместимый с Mojang API.
+ * Module for authentication via ely.by service.
+ * Implements authentication protocol compatible with Mojang API.
  * 
  * @module elyauth
  */
@@ -15,27 +15,27 @@ const Lang = require('./langloader')
 const log = LoggerUtil.getLogger('ElyAuth')
 
 /**
- * Коды ошибок для ely.by
+ * Error codes for ely.by
  */
 const ElyErrorCode = {
     ILLEGAL_ARGUMENT: 'IllegalArgumentException',
     FORBIDDEN_OPERATION: 'ForbiddenOperationException',
-    TWO_FACTOR_REQUIRED: 'ForbiddenOperationException', // Специальный случай для 2FA
+    TWO_FACTOR_REQUIRED: 'ForbiddenOperationException', // Special case for 2FA
     UNKNOWN: 'Unknown'
 }
 
 /**
- * Класс для работы с REST API ely.by
+ * Class for working with ely.by REST API
  */
 class ElyRestAPI {
     /**
-     * Аутентификация пользователя через ely.by
+     * User authentication via ely.by
      * 
-     * @param {string} username Никнейм пользователя или email
-     * @param {string} password Пароль пользователя или пароль:токен для 2FA
-     * @param {string} clientToken Уникальный токен лаунчера
-     * @param {boolean} requestUser Если true, включает информацию о пользователе в ответ
-     * @returns {Promise<Object>} Результат аутентификации
+     * @param {string} username User nickname or email
+     * @param {string} password User password or password:token for 2FA
+     * @param {string} clientToken Unique launcher token
+     * @param {boolean} requestUser If true, includes user information in response
+     * @returns {Promise<Object>} Authentication result
      */
     static async authenticate(username, password, clientToken, requestUser = true) {
         try {
@@ -46,7 +46,7 @@ class ElyRestAPI {
                 requestUser: requestUser
             }
 
-            log.info('Отправка запроса аутентификации на ely.by...')
+            log.info('Sending authentication request to ely.by...')
             
             const response = await fetch(`${ELY_CONFIG.AUTH_SERVER_URL}/auth/authenticate`, {
                 method: 'POST',
@@ -59,15 +59,15 @@ class ElyRestAPI {
             const data = await response.json()
 
             if (response.ok) {
-                log.info('Аутентификация успешна')
+                log.info('Authentication successful')
                 return {
                     responseStatus: RestResponseStatus.SUCCESS,
                     data: data
                 }
             } else {
-                log.error('Ошибка аутентификации:', data)
+                log.error('Authentication error:', data)
                 
-                // Обработка специального случая 2FA
+                // Handle special 2FA case
                 if (response.status === 401 && 
                     data.error === ElyErrorCode.FORBIDDEN_OPERATION && 
                     data.errorMessage === 'Account protected with two factor auth.') {
@@ -85,7 +85,7 @@ class ElyRestAPI {
                 }
             }
         } catch (error) {
-            log.error('Ошибка при выполнении запроса аутентификации:', error)
+            log.error('An error occurred while executing the authentication request:', error)
             return {
                 responseStatus: RestResponseStatus.ERROR,
                 elyErrorCode: ElyErrorCode.UNKNOWN,
@@ -95,11 +95,11 @@ class ElyRestAPI {
     }
 
     /**
-     * Валидация токена доступа
+     * Access token validation
      * 
-     * @param {string} accessToken Токен доступа
-     * @param {string} clientToken Токен клиента
-     * @returns {Promise<Object>} Результат валидации
+     * @param {string} accessToken Access token
+     * @param {string} clientToken Client token
+     * @returns {Promise<Object>} Validation result
      */
     static async validate(accessToken, clientToken) {
         try {
@@ -108,7 +108,7 @@ class ElyRestAPI {
                 clientToken: clientToken
             }
 
-            log.info('Валидация токена через ely.by...')
+            log.info('Validate the token via ely.by...')
             
             const response = await fetch(`${ELY_CONFIG.AUTH_SERVER_URL}/auth/validate`, {
                 method: 'POST',
@@ -119,20 +119,20 @@ class ElyRestAPI {
             })
 
             if (response.ok) {
-                log.info('Токен валиден')
+                log.info('The token is valid')
                 return {
                     responseStatus: RestResponseStatus.SUCCESS,
                     data: true
                 }
             } else {
-                log.warn('Токен невалиден')
+                log.warn('Token is invalid')
                 return {
                     responseStatus: RestResponseStatus.SUCCESS,
                     data: false
                 }
             }
         } catch (error) {
-            log.error('Ошибка при валидации токена:', error)
+            log.error('Error validating token:', error)
             return {
                 responseStatus: RestResponseStatus.ERROR,
                 elyErrorCode: ElyErrorCode.UNKNOWN,
@@ -142,11 +142,11 @@ class ElyRestAPI {
     }
 
     /**
-     * Обновление токена доступа
+     * Access token refresh
      * 
-     * @param {string} accessToken Текущий токен доступа
-     * @param {string} clientToken Токен клиента
-     * @returns {Promise<Object>} Результат обновления
+     * @param {string} accessToken Current access token
+     * @param {string} clientToken Client token
+     * @returns {Promise<Object>} Refresh result
      */
     static async refresh(accessToken, clientToken) {
         try {
@@ -155,7 +155,7 @@ class ElyRestAPI {
                 clientToken: clientToken
             }
 
-            log.info('Обновление токена через ely.by...')
+            log.info('Token update via ely.by...')
             
             const response = await fetch(`${ELY_CONFIG.AUTH_SERVER_URL}/auth/refresh`, {
                 method: 'POST',
@@ -168,13 +168,13 @@ class ElyRestAPI {
             const data = await response.json()
 
             if (response.ok) {
-                log.info('Токен успешно обновлен')
+                log.info('Token successfully updated')
                 return {
                     responseStatus: RestResponseStatus.SUCCESS,
                     data: data
                 }
             } else {
-                log.error('Ошибка обновления токена:', data)
+                log.error('Token update error:', data)
                 return {
                     responseStatus: RestResponseStatus.ERROR,
                     elyErrorCode: data.error || ElyErrorCode.UNKNOWN,
@@ -182,7 +182,7 @@ class ElyRestAPI {
                 }
             }
         } catch (error) {
-            log.error('Ошибка при обновлении токена:', error)
+            log.error('Error updating token:', error)
             return {
                 responseStatus: RestResponseStatus.ERROR,
                 elyErrorCode: ElyErrorCode.UNKNOWN,
@@ -192,11 +192,11 @@ class ElyRestAPI {
     }
 
     /**
-     * Инвалидация токена доступа
+     * Access token invalidation
      * 
-     * @param {string} accessToken Токен доступа
-     * @param {string} clientToken Токен клиента
-     * @returns {Promise<Object>} Результат инвалидации
+     * @param {string} accessToken Access token
+     * @param {string} clientToken Client token
+     * @returns {Promise<Object>} Invalidation result
      */
     static async invalidate(accessToken, clientToken) {
         try {
@@ -205,7 +205,7 @@ class ElyRestAPI {
                 clientToken: clientToken
             }
 
-            log.info('Инвалидация токена через ely.by...')
+            log.info('Via the invalidation token ely.by...')
             
             const response = await fetch(`${ELY_CONFIG.AUTH_SERVER_URL}/auth/invalidate`, {
                 method: 'POST',
@@ -216,13 +216,13 @@ class ElyRestAPI {
             })
 
             if (response.ok) {
-                log.info('Токен успешно инвалидирован')
+                log.info('Token successfully invalidated')
                 return {
                     responseStatus: RestResponseStatus.SUCCESS,
                     data: true
                 }
             } else {
-                log.error('Ошибка инвалидации токена')
+                log.error('Token invalidation error')
                 return {
                     responseStatus: RestResponseStatus.ERROR,
                     elyErrorCode: ElyErrorCode.UNKNOWN,
@@ -230,7 +230,7 @@ class ElyRestAPI {
                 }
             }
         } catch (error) {
-            log.error('Ошибка при инвалидации токена:', error)
+            log.error('Error invalidating token:', error)
             return {
                 responseStatus: RestResponseStatus.ERROR,
                 elyErrorCode: ElyErrorCode.UNKNOWN,
@@ -241,10 +241,10 @@ class ElyRestAPI {
 }
 
 /**
- * Преобразование ошибок ely.by в отображаемые сообщения
+ * Convert ely.by errors to displayable messages
  * 
- * @param {string} errorCode Код ошибки
- * @returns {Object} Объект с заголовком и описанием ошибки
+ * @param {string} errorCode Error code
+ * @returns {Object} Object with error title and description
  */
 function elyErrorDisplayable(errorCode) {
     switch (errorCode) {
@@ -272,7 +272,7 @@ function elyErrorDisplayable(errorCode) {
     }
 }
 
-// Экспортируем API и утилиты
+// Export API and utilities
 module.exports = {
     ElyRestAPI,
     ElyErrorCode,

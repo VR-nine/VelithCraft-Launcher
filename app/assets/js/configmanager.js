@@ -9,7 +9,16 @@ const sysRoot = process.env.APPDATA || (process.platform == 'darwin' ? process.e
 
 const dataPath = path.join(sysRoot, '.helioslauncher')
 
-const launcherDir = require('@electron/remote').app.getPath('userData')
+// Use app.getPath directly in main process, or remote in renderer
+let launcherDir
+try {
+    // Try to get app path directly (main process)
+    const { app } = require('electron')
+    launcherDir = app.getPath('userData')
+} catch (e) {
+    // Fallback to remote (renderer process)
+    launcherDir = require('@electron/remote').app.getPath('userData')
+}
 
 /**
  * Retrieve the absolute path of the launcher directory.
@@ -86,7 +95,8 @@ const DEFAULT_CONFIG = {
         },
         launcher: {
             allowPrerelease: false,
-            dataDirectory: dataPath
+            dataDirectory: dataPath,
+            language: null // null means auto-detect
         }
     },
     newsCache: {
@@ -795,4 +805,23 @@ exports.getAllowPrerelease = function(def = false){
  */
 exports.setAllowPrerelease = function(allowPrerelease){
     config.settings.launcher.allowPrerelease = allowPrerelease
+}
+
+/**
+ * Get the current language setting. Returns null for auto-detect.
+ * 
+ * @param {boolean} def Optional. If true, the default value will be returned.
+ * @returns {string|null} The current language setting or null for auto-detect.
+ */
+exports.getLanguage = function(def = false){
+    return !def ? config.settings.launcher.language : DEFAULT_CONFIG.settings.launcher.language
+}
+
+/**
+ * Set the language setting. Use null for auto-detect.
+ * 
+ * @param {string|null} language The new language setting or null for auto-detect.
+ */
+exports.setLanguage = function(language){
+    config.settings.launcher.language = language
 }

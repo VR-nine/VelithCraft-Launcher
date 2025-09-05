@@ -12,8 +12,12 @@ const semver                            = require('semver')
 const { pathToFileURL }                 = require('url')
 const { AZURE_CLIENT_ID, MSFT_OPCODE, MSFT_REPLY_TYPE, MSFT_ERROR, SHELL_OPCODE } = require('./app/assets/js/ipcconstants')
 const LangLoader                        = require('./app/assets/js/langloader')
+const ConfigManager                     = require('./app/assets/js/configmanager')
 
-// Setup Lang
+// Setup Config first
+ConfigManager.load()
+
+// Setup Lang after config is loaded
 LangLoader.setupLanguage()
 
 // Setup auto updater.
@@ -235,13 +239,13 @@ function createWindow() {
             preload: path.join(__dirname, 'app', 'assets', 'js', 'preloader.js'),
             nodeIntegration: true,
             contextIsolation: false,
-            webSecurity: false // Отключаем web security для загрузки HTTP ресурсов
+            webSecurity: false // Disable web security for loading HTTP resources
         },
         backgroundColor: '#171614'
     })
     remoteMain.enable(win.webContents)
 
-    // Разрешаем загрузку внешних ресурсов для скинов и серверов
+    // Allow loading external resources for skins and servers
     win.webContents.session.webRequest.onBeforeRequest((details, callback) => {
         const url = details.url
         if (url.includes('skinsystem.ely.by') || url.includes('mc-heads.net') || url.includes('authserver.ely.by') || url.includes('textures.minecraft.net') || url.includes('helios-files.geekcorner.eu.org') || url.includes('github.com') || url.includes('ely.by')) {
@@ -267,7 +271,7 @@ function createWindow() {
 
     win.resizable = true
 
-    // Открыть DevTools в режиме разработки
+    // Open DevTools in development mode
     if (isDev) {
         win.webContents.openDevTools()
     }
@@ -330,7 +334,7 @@ function createMenu() {
             }]
         }
 
-        // Добавить меню для разработки
+        // Add development menu
         let devSubMenu = {
             label: 'Developer',
             submenu: [{

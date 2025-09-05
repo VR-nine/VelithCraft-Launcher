@@ -1,10 +1,10 @@
 /**
- * Инициализация SkinManager как глобального объекта
+ * Initialize SkinManager as global object
  */
 const SkinManager = require('./assets/js/skinmanager')
 
-// Делаем SkinManager доступным глобально
+// Make SkinManager globally available
 window.SkinManager = SkinManager
 
-// Добавляем отладочную информацию
+// Add debug information
 console.log('SkinManager initialized:', window.SkinManager)

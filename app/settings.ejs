@@ -292,6 +292,22 @@
             </div>
             <div class="settingsFieldContainer">
                 <div class="settingsFieldLeft">
+                    <span class="settingsFieldTitle"><%- lang('settings.languageTitle') %></span>
+                    <span class="settingsFieldDesc"><%- lang('settings.languageDesc') %></span>
+                </div>
+                <div class="settingsFieldRight">
+                    <div class="settingsSelectContainer">
+                        <div class="settingsSelectSelected" id="settingsLanguageSelected" cValue="Language"><%- lang('settings.languageAuto') %></div>
+                        <div class="settingsSelectOptions" id="settingsLanguageOptions" hidden>
+                            <div class="settingsSelectOption" data-value=""><%- lang('settings.languageAuto') %></div>
+                            <div class="settingsSelectOption" data-value="en_US"><%- lang('settings.languageEnglish') %></div>
+                            <div class="settingsSelectOption" data-value="ru_RU"><%- lang('settings.languageRussian') %></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="settingsFieldContainer">
+                <div class="settingsFieldLeft">
                     <span class="settingsFieldTitle"><%- lang('settings.allowPrereleaseTitle') %></span>
                     <span class="settingsFieldDesc"><%- lang('settings.allowPrereleaseDesc') %></span>
                 </div>
