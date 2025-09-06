@@ -8,6 +8,36 @@
  */
 
 /**
+ * Retry mechanism for skin fetching operations
+ * 
+ * @param {Function} operation Function to retry
+ * @param {number} maxRetries Maximum number of retry attempts
+ * @param {number} delay Delay between retries in milliseconds
+ * @returns {Promise<any>} Result of the operation
+ */
+async function retryOperation(operation, maxRetries = 3, delay = 15000) {
+    let lastError;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const result = await operation();
+            return result;
+        } catch (error) {
+            lastError = error;
+            console.log(`SkinManager: Attempt ${attempt} failed:`, error.message);
+            
+            if (attempt < maxRetries) {
+                console.log(`SkinManager: Retrying in ${delay / 1000} seconds...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+    
+    console.error(`SkinManager: All ${maxRetries} attempts failed`);
+    throw lastError;
+}
+
+/**
  * Get the skin URL for an account
  * 
  * @param {Object} account Account object
@@ -70,14 +100,12 @@ function getMojangSkinUrl(uuid, type, size) {
  * @returns {Promise<Object>} Texture information
  */
 async function getElyTexturesInfo(username) {
-    try {
-        
+    return await retryOperation(async () => {
         // Use simple endpoint skinsystem.ely.by
         const response = await fetch(`http://skinsystem.ely.by/profile/${username}`)
         
         if (!response.ok) {
-            console.error('SkinManager: Failed to get Ely.by textures info:', response.status)
-            return null
+            throw new Error(`Failed to get Ely.by textures info: ${response.status}`)
         }
         
         const data = await response.json()
@@ -93,21 +121,18 @@ async function getElyTexturesInfo(username) {
                     console.log('SkinManager: Decoded textures info:', decodedValue)
                     return decodedValue
                 } catch (decodeError) {
-                    console.error('SkinManager: Error decoding textures property:', decodeError)
-                    return null
+                    throw new Error(`Error decoding textures property: ${decodeError.message}`)
                 }
             } else {
-                console.log('SkinManager: No textures property found in profile')
-                return null
+                throw new Error('No textures property found in profile')
             }
         } else {
-            console.log('SkinManager: No properties found in profile')
-            return null
+            throw new Error('No properties found in profile')
         }
-    } catch (error) {
-        console.error('SkinManager: Error getting Ely.by textures info:', error)
+    }).catch(error => {
+        console.error('SkinManager: Error getting Ely.by textures info after retries:', error)
         return null
-    }
+    })
 }
 
 /**
@@ -121,13 +146,12 @@ async function getElyTexturesInfo(username) {
 async function getElySkinUrlByNickname(nickname, type, size) {
     console.log('SkinManager: Getting Ely.by skin by nickname:', nickname)
     
-    try {
+    return await retryOperation(async () => {
         // Get textures info directly by nickname
         const texturesInfo = await getElyTexturesInfo(nickname)
         
         if (!texturesInfo || !texturesInfo.textures || !texturesInfo.textures.SKIN) {
-            console.error('SkinManager: No skin info found for nickname:', nickname)
-            return getDefaultSkinUrl(type, size)
+            throw new Error(`No skin info found for nickname: ${nickname}`)
         }
         
         // Extract skin URL
@@ -136,11 +160,10 @@ async function getElySkinUrlByNickname(nickname, type, size) {
         
         // Return original skin URL directly
         return skinUrl
-        
-    } catch (error) {
-        console.error('SkinManager: Error getting Ely.by skin by nickname:', error)
+    }).catch(error => {
+        console.error('SkinManager: Error getting Ely.by skin by nickname after retries:', error)
         return getDefaultSkinUrl(type, size)
-    }
+    })
 }
 
 
@@ -225,8 +248,9 @@ function updateHeadInElement(element, account, size = 40) {
         return
     }
     
-    // Use async function to get skin URL
-    getSkinUrl(account, 'head', size).then(skinUrl => {
+    // Use retry mechanism for getting skin URL
+    retryOperation(async () => {
+        const skinUrl = await getSkinUrl(account, 'head', size)
         console.log('SkinManager: Updating element with head from skin URL:', skinUrl)
         
         // Apply style for head cropping
@@ -257,8 +281,10 @@ function updateHeadInElement(element, account, size = 40) {
                 element.style.cssText = createHeadUrl(defaultUrl, size)
             }
         }
+        
+        return skinUrl
     }).catch(error => {
-        console.error('SkinManager: Error getting skin URL:', error)
+        console.error('SkinManager: Error getting skin URL after retries:', error)
         // In case of error use default skin
         const defaultUrl = getDefaultSkinUrl('head', size)
         element.style.cssText = createHeadUrl(defaultUrl, size)
@@ -321,8 +347,9 @@ function updateSkinInElement(element, account, type = 'head', size = 40) {
         return
     }
     
-    // Use async function to get skin URL
-    getSkinUrl(account, type, size).then(skinUrl => {
+    // Use retry mechanism for getting skin URL
+    retryOperation(async () => {
+        const skinUrl = await getSkinUrl(account, type, size)
         console.log('SkinManager: Updating element with skin URL:', skinUrl)
         
         if (element.tagName === 'IMG') {
@@ -368,8 +395,10 @@ function updateSkinInElement(element, account, type = 'head', size = 40) {
             element.style.backgroundImage = `url('${skinUrl}')`
             console.log('SkinManager: Set background image to:', skinUrl)
         }
+        
+        return skinUrl
     }).catch(error => {
-        console.error('SkinManager: Error getting skin URL:', error)
+        console.error('SkinManager: Error getting skin URL after retries:', error)
         // In case of error use default skin
         const defaultUrl = getDefaultSkinUrl(type, size)
         if (element.tagName === 'IMG') {
@@ -407,5 +436,6 @@ module.exports = {
     updateHeadInElement,
     createHeadUrl,
     checkSkinAvailability,
-    checkElyByAvailability
+    checkElyByAvailability,
+    retryOperation
 }
