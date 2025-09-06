@@ -272,18 +272,18 @@ function showTwoFactorDialog(username, password) {
     
     totpDialog.innerHTML = `
         <div style="background: #2c2c2c; padding: 30px; border-radius: 10px; max-width: 400px; width: 90%;">
-            <h3 style="color: #fff; margin-bottom: 20px; text-align: center;"><%- lang('settings.twoFactorAuth') %></h3>
+            <h3 style="color: #fff; margin-bottom: 20px; text-align: center;">${Lang.queryJS('settings.twoFactorAuth')}</h3>
             <p style="color: #ccc; margin-bottom: 20px; text-align: center;">
-                <%- lang('settings.enterCodeTwoFactor') %>:
+                ${Lang.queryJS('settings.enterCodeTwoFactor')}:
             </p>
             <input type="text" id="totpToken" placeholder="000000" maxlength="6" 
                    style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #555; 
                           background: #333; color: #fff; border-radius: 5px; text-align: center; font-size: 18px;">
             <div style="display: flex; gap: 10px;">
                 <button id="totpCancel" style="flex: 1; padding: 10px; background: #666; color: #fff; 
-                        border: none; border-radius: 5px; cursor: pointer;">Отмена</button>
+                        border: none; border-radius: 5px; cursor: pointer;">${Lang.queryJS('login.loginCancelText')}</button>
                 <button id="totpSubmit" style="flex: 1; padding: 10px; background: #4CAF50; color: #fff; 
-                        border: none; border-radius: 5px; cursor: pointer;">Подтвердить</button>
+                        border: none; border-radius: 5px; cursor: pointer;">${Lang.queryJS('overlay.serverSelectConfirm')}</button>
             </div>
         </div>
     `
@@ -307,7 +307,7 @@ function showTwoFactorDialog(username, password) {
     totpSubmitBtn.onclick = () => {
         const totpToken = totpTokenInput.value.trim()
         if (totpToken.length !== 6) {
-            alert('Пожалуйста, введите 6-значный код')
+            alert(Lang.queryJS('auth.ely.error.twoFactorRequiredDesc'))
             return
         }
         

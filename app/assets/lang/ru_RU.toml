@@ -65,8 +65,6 @@ microsoftAccount = "Microsoft"
 addMicrosoftAccount = "+ Добавить аккаунт Microsoft"
 elyAccount = "Ely.by"
 addElyAccount = "+ Добавить аккаунт Ely.by"
-twoFactorAuth = "Двухфакторная аутентификация"
-enterCodeTwoFactor = "Введите код из вашего приложения аутентификатора"
 mojangAccount = "Mojang"
 addMojangAccount = "+ Добавить аккаунт Mojang"
 minecraftTabHeaderText = "Настройки Minecraft"
@@ -152,6 +150,7 @@ login = "ВОЙТИ"
 loggingIn = "ВХОД..."
 success = "УСПЕХ"
 tryAgain = "Повторить"
+loginCancelText = "Отмена"
 
 [js.login.error]
 invalidValue = "* Неверное значение"
@@ -226,6 +225,11 @@ joined = "Исследуем мир!"
 
 [js.overlay]
 dismiss = "Закрыть"
+serverSelectConfirm = "Выбрать"
+
+[js.settings]
+twoFactorAuth = "Двухфакторная аутентификация"
+enterCodeTwoFactor = "Введите код из вашего приложения аутентификатора"
 
 [js.settings.fileSelectors]
 executables = "Исполняемые файлы"
