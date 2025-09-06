@@ -271,19 +271,22 @@ function showTwoFactorDialog(username, password) {
     `
     
     totpDialog.innerHTML = `
-        <div style="background: #2c2c2c; padding: 30px; border-radius: 10px; max-width: 400px; width: 90%;">
-            <h3 style="color: #fff; margin-bottom: 20px; text-align: center;">${Lang.queryJS('settings.twoFactorAuth')}</h3>
-            <p style="color: #ccc; margin-bottom: 20px; text-align: center;">
+        <div style="background: rgba(0, 0, 0, 0.25); padding: 30px; border-radius: 3px; max-width: 400px; width: 90%; border: 1px solid rgba(126, 126, 126, 0.57);">
+            <h3 style="color: #fff; margin-bottom: 20px; text-align: center; font-family: 'Avenir Medium'; font-size: 20px; font-weight: bold; letter-spacing: 1px;">${Lang.queryJS('settings.twoFactorAuth')}</h3>
+            <p style="color: rgba(255, 255, 255, 0.75); margin-bottom: 20px; text-align: center; font-size: 12px; font-weight: bold;">
                 ${Lang.queryJS('settings.enterCodeTwoFactor')}:
             </p>
             <input type="text" id="totpToken" placeholder="000000" maxlength="6" 
-                   style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #555; 
-                          background: #333; color: #fff; border-radius: 5px; text-align: center; font-size: 18px;">
+                   style="display: block; width: 160px; padding: 7.5px; margin: 0 auto 20px; border: 1.5px solid #fff; border-width: 1.5px 0px 0px 0px; 
+                          background: none; color: rgba(255, 255, 255, 0.75); border-radius: 0px; text-align: center; font-size: 18px; 
+                          font-family: 'Avenir Book'; font-weight: bold; letter-spacing: 1px; box-sizing: border-box; outline: none;">
             <div style="display: flex; gap: 10px;">
-                <button id="totpCancel" style="flex: 1; padding: 10px; background: #666; color: #fff; 
-                        border: none; border-radius: 5px; cursor: pointer;">${Lang.queryJS('login.loginCancelText')}</button>
-                <button id="totpSubmit" style="flex: 1; padding: 10px; background: #4CAF50; color: #fff; 
-                        border: none; border-radius: 5px; cursor: pointer;">${Lang.queryJS('overlay.serverSelectConfirm')}</button>
+                <button id="totpCancel" style="flex: 1; padding: 15px 5px; background: none; color: #fff; 
+                        border: none; border-radius: 0px; cursor: pointer; font-weight: bold; letter-spacing: 2px; 
+                        transition: 0.5s ease; font-family: 'Avenir Book';">${Lang.queryJS('login.loginCancelText')}</button>
+                <button id="totpSubmit" style="flex: 1; padding: 15px 5px; background: none; color: #fff; 
+                        border: none; border-radius: 0px; cursor: pointer; font-weight: bold; letter-spacing: 2px; 
+                        transition: 0.5s ease; font-family: 'Avenir Book';">${Lang.queryJS('overlay.serverSelectConfirm')}</button>
             </div>
         </div>
     `
@@ -296,6 +299,37 @@ function showTwoFactorDialog(username, password) {
     
     // Focus on input field
     totpTokenInput.focus()
+    
+    // Add hover effects for buttons
+    totpCancelBtn.addEventListener('mouseenter', () => {
+        totpCancelBtn.style.textShadow = '0px 0px 20px #fff'
+    })
+    totpCancelBtn.addEventListener('mouseleave', () => {
+        totpCancelBtn.style.textShadow = 'none'
+    })
+    totpCancelBtn.addEventListener('mousedown', () => {
+        totpCancelBtn.style.color = '#c7c7c7'
+        totpCancelBtn.style.textShadow = '0px 0px 20px #c7c7c7'
+    })
+    totpCancelBtn.addEventListener('mouseup', () => {
+        totpCancelBtn.style.color = '#fff'
+        totpCancelBtn.style.textShadow = 'none'
+    })
+    
+    totpSubmitBtn.addEventListener('mouseenter', () => {
+        totpSubmitBtn.style.textShadow = '0px 0px 20px #fff'
+    })
+    totpSubmitBtn.addEventListener('mouseleave', () => {
+        totpSubmitBtn.style.textShadow = 'none'
+    })
+    totpSubmitBtn.addEventListener('mousedown', () => {
+        totpSubmitBtn.style.color = '#c7c7c7'
+        totpSubmitBtn.style.textShadow = '0px 0px 20px #c7c7c7'
+    })
+    totpSubmitBtn.addEventListener('mouseup', () => {
+        totpSubmitBtn.style.color = '#fff'
+        totpSubmitBtn.style.textShadow = 'none'
+    })
     
     // Event handlers
     totpCancelBtn.onclick = () => {
