@@ -212,7 +212,7 @@ downloadingFiles = "Загрузка файлов.."
 errorDuringFileDownloadTitle = "Ошибка загрузки файлов"
 preparingToLaunch = "Подготовка к запуску.."
 launchingGame = "Запуск игры.."
-launchWrapperNotDownloaded = "Главный файл LaunchWrapper не загрузился. Игра не может быть запущена.<br><br>Отключите антивирус и попробуйте снова.<br><br>Сообщите об этом на <a href=\"https://github.com/dscalzi/HeliosLauncher/issues\">GitHub</a>."
+launchWrapperNotDownloaded = "Главный файл LaunchWrapper не загрузился. Игра не может быть запущена.<br><br>Отключите антивирус и попробуйте снова.<br><br>Сообщите об этом на <a href=\"https://github.com/j-tap/VR9-HeliosLauncher/issues\">GitHub</a>."
 doneEnjoyServer = "Готово. Приятной игры!"
 checkConsoleForDetails = "Проверьте консоль для подробностей."
 

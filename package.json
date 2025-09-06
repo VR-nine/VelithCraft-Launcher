@@ -1,13 +1,13 @@
 {
-  "name": "helioslauncher",
-  "version": "2.2.1",
-  "productName": "Helios Launcher",
-  "description": "Modded Minecraft Launcher",
-  "author": "Daniel Scalzi (https://github.com/dscalzi/)",
+  "name": "vr9-helioslauncher",
+  "version": "0.1.0",
+  "productName": "VR nine Launcher",
+  "description": "Modded VR nine Minecraft Launcher",
+  "author": "j-tap",
   "license": "UNLICENSED",
-  "homepage": "https://github.com/dscalzi/HeliosLauncher",
+  "homepage": "https://github.com/j-tap/VR9-HeliosLauncher",
   "bugs": {
-    "url": "https://github.com/dscalzi/HeliosLauncher/issues"
+    "url": "https://github.com/j-tap/VR9-HeliosLauncher/issues"
   },
   "private": true,
   "main": "index.js",
@@ -46,6 +46,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dscalzi/HeliosLauncher.git"
+    "url": "git+https://github.com/j-tap/VR9-HeliosLauncher.git"
   }
 }
