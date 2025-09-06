@@ -10,7 +10,9 @@ const settingsState = {
 }
 
 function bindSettingsSelect(){
+    console.log('bindSettingsSelect called')
     for(let ele of document.getElementsByClassName('settingsSelectContainer')) {
+        console.log('Found select container:', ele.id)
         const selectedDiv = ele.getElementsByClassName('settingsSelectSelected')[0]
 
         selectedDiv.onclick = (e) => {
@@ -18,6 +20,40 @@ function bindSettingsSelect(){
             closeSettingsSelect(e.target)
             e.target.nextElementSibling.toggleAttribute('hidden')
             e.target.classList.toggle('select-arrow-active')
+        }
+        
+        // Bind language select options
+        const optionsDiv = ele.getElementsByClassName('settingsSelectOptions')[0]
+        if(optionsDiv && optionsDiv.id === 'settingsLanguageOptions') {
+            console.log('Binding language select options')
+            const options = optionsDiv.getElementsByClassName('settingsSelectOption')
+            Array.from(options).forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.stopPropagation()
+                    const selectedDiv = this.parentNode.previousElementSibling
+                    const value = this.getAttribute('data-value')
+                    
+                    console.log('Language option clicked:', value)
+                    
+                    // Update selected text
+                    selectedDiv.innerHTML = this.innerHTML
+                    
+                    // Update value attribute
+                    selectedDiv.setAttribute('value', value || '')
+                    
+                    // Remove selected from all options
+                    for(let sib of this.parentNode.children){
+                        sib.removeAttribute('selected')
+                    }
+                    this.setAttribute('selected', '')
+                    
+                    // Close select
+                    closeSettingsSelect()
+                    
+                    // Change language and restart app
+                    updateLanguageImmediately(value)
+                })
+            })
         }
     }
 }
@@ -150,6 +186,22 @@ async function initSettingsValues(){
                 } else if(v.type === 'checkbox'){
                     v.checked = gFn.apply(null, gFnOpts)
                 }
+            } else if(v.tagName === 'SELECT'){
+                const value = gFn.apply(null, gFnOpts)
+                v.value = value || ''
+            } else if(v.classList.contains('settingsSelectSelected')){
+                const value = gFn.apply(null, gFnOpts)
+                v.setAttribute('value', value || '')
+                // Update display text based on value
+                if(cVal === 'Language') {
+                    const options = document.getElementById('settingsLanguageOptions')
+                    if(options) {
+                        const option = options.querySelector(`[data-value="${value || ''}"]`)
+                        if(option) {
+                            v.innerHTML = option.innerHTML
+                        }
+                    }
+                }
             } else if(v.tagName === 'DIV'){
                 if(v.classList.contains('rangeSlider')){
                     // Special Conditions
@@ -208,6 +260,22 @@ function saveSettingsValues(){
                     if(cVal === 'AllowPrerelease'){
                         changeAllowPrerelease(v.checked)
                     }
+                }
+            } else if(v.tagName === 'SELECT'){
+                const value = v.value || null
+                sFnOpts.push(value)
+                sFn.apply(null, sFnOpts)
+                // Special Conditions
+                if(cVal === 'Language'){
+                    handleLanguageChange(value)
+                }
+            } else if(v.classList.contains('settingsSelectSelected')){
+                const value = v.getAttribute('value') || null
+                sFnOpts.push(value)
+                sFn.apply(null, sFnOpts)
+                // Special Conditions
+                if(cVal === 'Language'){
+                    handleLanguageChange(value)
                 }
             } else if(v.tagName === 'DIV'){
                 if(v.classList.contains('rangeSlider')){
@@ -343,11 +411,24 @@ const msftLoginLogger = LoggerUtil.getLogger('Microsoft Login')
 const msftLogoutLogger = LoggerUtil.getLogger('Microsoft Logout')
 
 // Bind the add mojang account button.
-document.getElementById('settingsAddMojangAccount').onclick = (e) => {
+if(document.getElementById('settingsAddMojangAccount')) {
+    document.getElementById('settingsAddMojangAccount').onclick = (e) => {
+        switchView(getCurrentView(), VIEWS.login, 500, 500, () => {
+            loginViewOnCancel = VIEWS.settings
+            loginViewOnSuccess = VIEWS.settings
+            loginCancelEnabled(true)
+        })
+    }
+}
+
+// Bind the add ely account button.
+document.getElementById('settingsAddElyAccount').onclick = (e) => {
     switchView(getCurrentView(), VIEWS.login, 500, 500, () => {
         loginViewOnCancel = VIEWS.settings
         loginViewOnSuccess = VIEWS.settings
         loginCancelEnabled(true)
+        // Set flag for using ely.by authentication
+        window.isElyLogin = true
     })
 }
 
@@ -518,6 +599,24 @@ function processLogOut(val, isLastAccount){
         switchView(getCurrentView(), VIEWS.waiting, 500, 500, () => {
             ipcRenderer.send(MSFT_OPCODE.OPEN_LOGOUT, uuid, isLastAccount)
         })
+    } else if(targetAcc.type === 'ely') {
+        AuthManager.removeElyAccount(uuid).then(() => {
+            if(!isLastAccount && uuid === prevSelAcc.uuid){
+                const selAcc = ConfigManager.getSelectedAccount()
+                refreshAuthAccountSelected(selAcc.uuid)
+                updateSelectedAccount(selAcc)
+                validateSelectedAccount()
+            }
+            if(isLastAccount) {
+                loginOptionsCancelEnabled(false)
+                loginOptionsViewOnLoginSuccess = VIEWS.settings
+                loginOptionsViewOnLoginCancel = VIEWS.loginOptions
+                switchView(getCurrentView(), VIEWS.loginOptions)
+            }
+        })
+        $(parent).fadeOut(250, () => {
+            parent.remove()
+        })
     } else {
         AuthManager.removeMojangAccount(uuid).then(() => {
             if(!isLastAccount && uuid === prevSelAcc.uuid){
@@ -619,12 +718,13 @@ function refreshAuthAccountSelected(uuid){
 }
 
 const settingsCurrentMicrosoftAccounts = document.getElementById('settingsCurrentMicrosoftAccounts')
+const settingsCurrentElyAccounts = document.getElementById('settingsCurrentElyAccounts')
 const settingsCurrentMojangAccounts = document.getElementById('settingsCurrentMojangAccounts')
 
 /**
  * Add auth account elements for each one stored in the authentication database.
  */
-function populateAuthAccounts(){
+async function populateAuthAccounts(){
     const authAccounts = ConfigManager.getAuthAccounts()
     const authKeys = Object.keys(authAccounts)
     if(authKeys.length === 0){
@@ -633,14 +733,26 @@ function populateAuthAccounts(){
     const selectedUUID = ConfigManager.getSelectedAccount().uuid
 
     let microsoftAuthAccountStr = ''
+    let elyAuthAccountStr = ''
     let mojangAuthAccountStr = ''
 
-    authKeys.forEach((val) => {
+    // Process accounts asynchronously
+    for (const val of authKeys) {
         const acc = authAccounts[val]
+        
+        // Get skin URL asynchronously (use 'head' to display only the head)
+        let skinUrl = `https://mc-heads.net/head/${acc.uuid}/60` // fallback
+        if (window.SkinManager) {
+            try {
+                skinUrl = await window.SkinManager.getSkinUrl(acc, 'head', 60)
+            } catch (error) {
+                console.error('Error getting skin URL:', error)
+            }
+        }
 
         const accHtml = `<div class="settingsAuthAccount" uuid="${acc.uuid}">
             <div class="settingsAuthAccountLeft">
-                <img class="settingsAuthAccountImage" alt="${acc.displayName}" src="https://mc-heads.net/body/${acc.uuid}/60">
+                <div class="settingsAuthAccountImage" style="background-image: url('${skinUrl}'); background-size: 480px 480px; background-position: -60px -60px; width: 60px; height: 60px; image-rendering: pixelated;"></div>
             </div>
             <div class="settingsAuthAccountRight">
                 <div class="settingsAuthAccountDetails">
@@ -664,21 +776,29 @@ function populateAuthAccounts(){
 
         if(acc.type === 'microsoft') {
             microsoftAuthAccountStr += accHtml
+        } else if(acc.type === 'ely') {
+            elyAuthAccountStr += accHtml
         } else {
             mojangAuthAccountStr += accHtml
         }
+    }
 
-    })
-
-    settingsCurrentMicrosoftAccounts.innerHTML = microsoftAuthAccountStr
-    settingsCurrentMojangAccounts.innerHTML = mojangAuthAccountStr
+    if (settingsCurrentMicrosoftAccounts) {
+        settingsCurrentMicrosoftAccounts.innerHTML = microsoftAuthAccountStr
+    }
+    if (settingsCurrentElyAccounts) {
+        settingsCurrentElyAccounts.innerHTML = elyAuthAccountStr
+    }
+    if (settingsCurrentMojangAccounts) {
+        settingsCurrentMojangAccounts.innerHTML = mojangAuthAccountStr
+    }
 }
 
 /**
  * Prepare the accounts tab for display.
  */
-function prepareAccountsTab() {
-    populateAuthAccounts()
+async function prepareAccountsTab() {
+    await populateAuthAccounts()
     bindAuthAccountSelect()
     bindAuthAccountLogOut()
 }
@@ -1338,7 +1458,7 @@ function populateMemoryStatus(){
 async function populateJavaExecDetails(execPath){
     const server = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
 
-    const details = await validateSelectedJvm(ensureJavaDirIsRoot(execPath), server.effectiveJavaOptions.supported)
+    const details = await window.validateSelectedJvm(window.ensureJavaDirIsRoot(execPath), server.effectiveJavaOptions.supported)
 
     if(details != null) {
         settingsJavaExecDetails.innerHTML = Lang.queryJS('settings.java.selectedJava', { version: details.semverStr, vendor: details.vendor })
@@ -1453,7 +1573,7 @@ function populateAboutVersionInformation(){
  */
 function populateReleaseNotes(){
     $.ajax({
-        url: 'https://github.com/dscalzi/HeliosLauncher/releases.atom',
+        url: 'https://github.com/j-tap/VR9-HeliosLauncher/releases.atom',
         success: (data) => {
             const version = 'v' + remote.app.getVersion()
             const entries = $(data).find('entry')
@@ -1581,3 +1701,243 @@ async function prepareSettings(first = false) {
 
 // Prepare the settings UI on startup.
 //prepareSettings(true)
+
+/**
+ * Handle language change event.
+ * 
+ * @param {string|null} language The selected language or null for auto-detect.
+ */
+function handleLanguageChange(language){
+    const Lang = require('./assets/js/langloader')
+    
+    // Log the change for debugging
+    console.log('Language changed to:', language || 'auto-detect')
+    
+    // Show notification about language change
+    const title = Lang.queryJS('settings.language.languageChangedTitle')
+    const message = Lang.queryJS('settings.language.languageChangedMessage')
+    const okButton = Lang.queryJS('settings.language.okButton')
+    
+    setOverlayContent(title, message, okButton)
+    
+    // Note: Language change requires restart to take effect
+    // The interface won't update immediately because translations are loaded at startup
+}
+
+/**
+ * Change language and restart application.
+ * 
+ * @param {string|null} language The selected language or null for auto-detect.
+ */
+function updateLanguageImmediately(language){
+    const ConfigManager = require('./assets/js/configmanager')
+    
+    try {
+        // Save language setting
+        ConfigManager.setLanguage(language)
+        ConfigManager.save()
+        
+        // Show message and restart application
+        const Lang = require('./assets/js/langloader')
+        const title = Lang.queryJS('settings.language.languageChangedTitle')
+        const message = Lang.queryJS('settings.language.languageChangedMessage')
+        const okButton = Lang.queryJS('settings.language.okButton')
+        
+        setOverlayContent(title, message, okButton)
+        
+        // Restart application after a short delay
+        setTimeout(() => {
+            try {
+                // Try to restart using Electron's remote API
+                const { app } = require('@electron/remote')
+                app.relaunch()
+                app.exit(0)
+            } catch (error) {
+                // Fallback to location reload
+                location.reload()
+            }
+        }, 2000) // 2 seconds delay so user can see the message
+        
+    } catch (error) {
+        console.error('Error changing language:', error)
+    }
+}
+
+
+/**
+ * Update interface elements with new translations.
+ */
+function updateInterfaceLanguage(){
+    const Lang = require('./assets/js/langloader')
+    
+    try {
+        // Update settings elements (most important for current page)
+        updateSettingsElements()
+        
+        // Update other elements if they exist
+        updateKnownElements()
+        
+    } catch (error) {
+        console.error('Error updating interface language:', error)
+    }
+}
+
+/**
+ * Update elements that use lang() function in EJS templates.
+ */
+function updateElementsByLangFunction(){
+    const Lang = require('./assets/js/langloader')
+    
+    // Find all elements with data-lang attribute or specific patterns
+    const elementsWithLang = document.querySelectorAll('[data-lang], .lang-text')
+    
+    elementsWithLang.forEach(element => {
+        const langKey = element.getAttribute('data-lang')
+        if(langKey) {
+            element.innerHTML = Lang.queryEJS(langKey)
+        }
+    })
+}
+
+/**
+ * Update known interface elements.
+ */
+function updateKnownElements(){
+    const Lang = require('./assets/js/langloader')
+    
+    // Landing page elements
+    const landingElements = [
+        { id: 'launch_button', key: 'landing.launchButton' },
+        { id: 'newsButton', key: 'landing.newsButton' },
+        { id: 'server_selection_button', key: 'landing.launchButtonPlaceholder' }
+    ]
+    
+    landingElements.forEach(item => {
+        const element = document.getElementById(item.id)
+        if(element) {
+            element.innerHTML = Lang.queryEJS(item.key)
+        }
+    })
+}
+
+/**
+ * Update landing page elements.
+ */
+function updateLandingElements(){
+    const Lang = require('./assets/js/langloader')
+    
+    // Update server status
+    const serverStatusElements = document.querySelectorAll('.server-status-text')
+    serverStatusElements.forEach(element => {
+        if(element.textContent.includes('SERVER')) {
+            element.textContent = Lang.queryEJS('landing.serverStatus')
+        }
+        if(element.textContent.includes('OFFLINE')) {
+            element.textContent = Lang.queryEJS('landing.serverStatusPlaceholder')
+        }
+    })
+    
+    // Update news elements
+    const newsElements = document.querySelectorAll('.news-text')
+    newsElements.forEach(element => {
+        if(element.textContent.includes('NEWS')) {
+            element.textContent = Lang.queryEJS('landing.newsButton')
+        }
+    })
+}
+
+/**
+ * Update settings page elements.
+ */
+function updateSettingsElements(){
+    const Lang = require('./assets/js/langloader')
+    
+    // Update settings navigation
+    const navElements = [
+        { id: 'settingsNavHeaderText', key: 'settings.navHeaderText' },
+        { id: 'settingsNavAccount', key: 'settings.navAccount' },
+        { id: 'settingsNavMinecraft', key: 'settings.navMinecraft' },
+        { id: 'settingsNavMods', key: 'settings.navMods' },
+        { id: 'settingsNavJava', key: 'settings.navJava' },
+        { id: 'settingsNavLauncher', key: 'settings.navLauncher' },
+        { id: 'settingsNavAbout', key: 'settings.navAbout' },
+        { id: 'settingsNavUpdates', key: 'settings.navUpdates' },
+        { id: 'settingsNavDone', key: 'settings.navDone' }
+    ]
+    
+    navElements.forEach(item => {
+        const element = document.getElementById(item.id)
+        if(element) {
+            element.innerHTML = Lang.queryEJS(item.key)
+        }
+    })
+    
+    // Update launcher tab elements
+    const launcherElements = [
+        { id: 'settingsLanguageTitle', key: 'settings.languageTitle' },
+        { id: 'settingsLanguageDesc', key: 'settings.languageDesc' }
+    ]
+    
+    launcherElements.forEach(item => {
+        const element = document.getElementById(item.id)
+        if(element) {
+            element.innerHTML = Lang.queryEJS(item.key)
+        }
+    })
+    
+    // Update all settings field titles and descriptions
+    updateSettingsFields()
+}
+
+/**
+ * Update settings field titles and descriptions.
+ */
+function updateSettingsFields(){
+    const Lang = require('./assets/js/langloader')
+    
+    // Update all field titles and descriptions
+    const fieldTitles = document.querySelectorAll('.settingsFieldTitle')
+    const fieldDescs = document.querySelectorAll('.settingsFieldDesc')
+    
+    // This is a more comprehensive approach - we'll need to map text content to translation keys
+    fieldTitles.forEach(title => {
+        const text = title.textContent.trim()
+        const translationKey = getTranslationKeyByText(text)
+        if(translationKey) {
+            title.innerHTML = Lang.queryEJS(translationKey)
+        }
+    })
+    
+    fieldDescs.forEach(desc => {
+        const text = desc.textContent.trim()
+        const translationKey = getTranslationKeyByText(text)
+        if(translationKey) {
+            desc.innerHTML = Lang.queryEJS(translationKey)
+        }
+    })
+}
+
+/**
+ * Get translation key by English text content.
+ */
+function getTranslationKeyByText(text){
+    const textToKeyMap = {
+        'Language': 'settings.languageTitle',
+        'Select the language for the launcher interface.': 'settings.languageDesc',
+        'Allow Pre-Release Updates.': 'settings.allowPrereleaseTitle',
+        'Pre-Releases include new features which may have not been fully tested or integrated.': 'settings.allowPrereleaseDesc',
+        'Data Directory': 'settings.dataDirectoryTitle',
+        'All game files and local Java installations will be stored in the data directory.': 'settings.dataDirectoryDesc',
+        'Settings': 'settings.navHeaderText',
+        'Account': 'settings.navAccount',
+        'Minecraft': 'settings.navMinecraft',
+        'Mods': 'settings.navMods',
+        'Java': 'settings.navJava',
+        'Launcher': 'settings.navLauncher',
+        'About': 'settings.navAbout',
+        'Updates': 'settings.navUpdates',
+        'Done': 'settings.navDone'
+    }
+    
+    return textToKeyMap[text] || null
+}

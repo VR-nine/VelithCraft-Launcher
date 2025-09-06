@@ -9,7 +9,16 @@ const sysRoot = process.env.APPDATA || (process.platform == 'darwin' ? process.e
 
 const dataPath = path.join(sysRoot, '.helioslauncher')
 
-const launcherDir = require('@electron/remote').app.getPath('userData')
+// Use app.getPath directly in main process, or remote in renderer
+let launcherDir
+try {
+    // Try to get app path directly (main process)
+    const { app } = require('electron')
+    launcherDir = app.getPath('userData')
+} catch (e) {
+    // Fallback to remote (renderer process)
+    launcherDir = require('@electron/remote').app.getPath('userData')
+}
 
 /**
  * Retrieve the absolute path of the launcher directory.
@@ -86,7 +95,8 @@ const DEFAULT_CONFIG = {
         },
         launcher: {
             allowPrerelease: false,
-            dataDirectory: dataPath
+            dataDirectory: dataPath,
+            language: null // null means auto-detect
         }
     },
     newsCache: {
@@ -371,32 +381,37 @@ exports.updateMicrosoftAuthAccount = function(uuid, accessToken, msAccessToken, 
 }
 
 /**
- * Adds an authenticated microsoft account to the database to be stored.
+ * Update the access token of an authenticated ely account.
  * 
  * @param {string} uuid The uuid of the authenticated account.
- * @param {string} accessToken The accessToken of the authenticated account.
- * @param {string} name The in game name of the authenticated account.
- * @param {date} mcExpires The date when the mojang access token expires
- * @param {string} msAccessToken The microsoft access token
- * @param {string} msRefreshToken The microsoft refresh token
- * @param {date} msExpires The date when the microsoft access token expires
+ * @param {string} accessToken The new Access Token.
  * 
  * @returns {Object} The authenticated account object created by this action.
  */
-exports.addMicrosoftAuthAccount = function(uuid, accessToken, name, mcExpires, msAccessToken, msRefreshToken, msExpires) {
+exports.updateElyAuthAccount = function(uuid, accessToken){
+    config.authenticationDatabase[uuid].accessToken = accessToken
+    config.authenticationDatabase[uuid].type = 'ely'
+    return config.authenticationDatabase[uuid]
+}
+
+/**
+ * Adds an authenticated ely account to the database to be stored.
+ * 
+ * @param {string} uuid The uuid of the authenticated account.
+ * @param {string} accessToken The accessToken of the authenticated account.
+ * @param {string} username The username (usually email) of the authenticated account.
+ * @param {string} displayName The in game name of the authenticated account.
+ * 
+ * @returns {Object} The authenticated account object created by this action.
+ */
+exports.addElyAuthAccount = function(uuid, accessToken, username, displayName){
     config.selectedAccount = uuid
     config.authenticationDatabase[uuid] = {
-        type: 'microsoft',
+        type: 'ely',
         accessToken,
-        username: name.trim(),
+        username: username.trim(),
         uuid: uuid.trim(),
-        displayName: name.trim(),
-        expiresAt: mcExpires,
-        microsoft: {
-            access_token: msAccessToken,
-            refresh_token: msRefreshToken,
-            expires_at: msExpires
-        }
+        displayName: displayName.trim()
     }
     return config.authenticationDatabase[uuid]
 }
@@ -790,4 +805,23 @@ exports.getAllowPrerelease = function(def = false){
  */
 exports.setAllowPrerelease = function(allowPrerelease){
     config.settings.launcher.allowPrerelease = allowPrerelease
+}
+
+/**
+ * Get the current language setting. Returns null for auto-detect.
+ * 
+ * @param {boolean} def Optional. If true, the default value will be returned.
+ * @returns {string|null} The current language setting or null for auto-detect.
+ */
+exports.getLanguage = function(def = false){
+    return !def ? config.settings.launcher.language : DEFAULT_CONFIG.settings.launcher.language
+}
+
+/**
+ * Set the language setting. Use null for auto-detect.
+ * 
+ * @param {string|null} language The new language setting or null for auto-detect.
+ */
+exports.setLanguage = function(language){
+    config.settings.launcher.language = language
 }

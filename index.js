@@ -12,8 +12,12 @@ const semver                            = require('semver')
 const { pathToFileURL }                 = require('url')
 const { AZURE_CLIENT_ID, MSFT_OPCODE, MSFT_REPLY_TYPE, MSFT_ERROR, SHELL_OPCODE } = require('./app/assets/js/ipcconstants')
 const LangLoader                        = require('./app/assets/js/langloader')
+const ConfigManager                     = require('./app/assets/js/configmanager')
 
-// Setup Lang
+// Setup Config first
+ConfigManager.load()
+
+// Setup Lang after config is loaded
 LangLoader.setupLanguage()
 
 // Setup auto updater.
@@ -234,14 +238,28 @@ function createWindow() {
         webPreferences: {
             preload: path.join(__dirname, 'app', 'assets', 'js', 'preloader.js'),
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
+            webSecurity: false // Disable web security for loading HTTP resources
         },
         backgroundColor: '#171614'
     })
     remoteMain.enable(win.webContents)
 
+    // Allow loading external resources for skins and servers
+    win.webContents.session.webRequest.onBeforeRequest((details, callback) => {
+        const url = details.url
+        if (url.includes('skinsystem.ely.by') || url.includes('mc-heads.net') || url.includes('authserver.ely.by') || url.includes('textures.minecraft.net') || url.includes('helios-files.geekcorner.eu.org') || url.includes('github.com') || url.includes('ely.by')) {
+            callback({ cancel: false })
+        } else {
+            callback({})
+        }
+    })
+
     const data = {
-        bkid: Math.floor((Math.random() * fs.readdirSync(path.join(__dirname, 'app', 'assets', 'images', 'backgrounds')).length)),
+        bkid: Math.floor(
+            Math.random() * fs.readdirSync(path.join(__dirname, 'app', 'assets', 'images', 'backgrounds'))
+                .filter(f => /\.(jpg|png)$/i.test(f)).length
+        ),
         lang: (str, placeHolders) => LangLoader.queryEJS(str, placeHolders)
     }
     Object.entries(data).forEach(([key, val]) => ejse.data(key, val))
@@ -255,6 +273,11 @@ function createWindow() {
     win.removeMenu()
 
     win.resizable = true
+
+    // Open DevTools in development mode
+    if (isDev) {
+        win.webContents.openDevTools()
+    }
 
     win.on('closed', () => {
         win = null
@@ -314,8 +337,30 @@ function createMenu() {
             }]
         }
 
+        // Add development menu
+        let devSubMenu = {
+            label: 'Developer',
+            submenu: [{
+                label: 'Toggle Developer Tools',
+                accelerator: 'Cmd+Option+I',
+                click: () => {
+                    if (win) {
+                        win.webContents.toggleDevTools()
+                    }
+                }
+            }, {
+                label: 'Reload',
+                accelerator: 'Cmd+R',
+                click: () => {
+                    if (win) {
+                        win.reload()
+                    }
+                }
+            }]
+        }
+
         // Bundle submenus into a single template and build a menu object with it
-        let menuTemplate = [applicationSubMenu, editSubMenu]
+        let menuTemplate = [applicationSubMenu, editSubMenu, devSubMenu]
         let menuObject = Menu.buildFromTemplate(menuTemplate)
 
         // Assign it to the application
