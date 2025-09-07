@@ -21,6 +21,45 @@ const loginForm             = document.getElementById('loginForm')
 // Control variables.
 let lu = false, lp = false
 
+/**
+ * Update login form translations based on selected auth service
+ * 
+ * @param {boolean} isElyLogin True if Ely.by login, false if Mojang login
+ */
+function updateLoginTranslations(isElyLogin) {
+    const Lang = require('./assets/js/langloader')
+    
+    // Update elements that need dynamic translation
+    const elementsToUpdate = [
+        { id: 'loginSubheader', key: isElyLogin ? 'login.loginSubheaderEly' : 'login.loginSubheader' },
+        { id: 'loginUsername', key: isElyLogin ? 'login.loginEmailPlaceholderEly' : 'login.loginEmailPlaceholder', type: 'placeholder' },
+        { id: 'loginForgotPasswordLink', key: isElyLogin ? 'login.loginForgotPasswordLinkEly' : 'login.loginForgotPasswordLink', type: 'href' },
+        { id: 'loginNeedAccountLink', key: isElyLogin ? 'login.loginNeedAccountLinkElyby' : 'login.loginNeedAccountLinkMinecraft', type: 'href' },
+        { id: 'loginPasswordDisclaimer1', key: isElyLogin ? 'login.loginPasswordDisclaimer1Ely' : 'login.loginPasswordDisclaimer1' },
+        { id: 'loginPasswordDisclaimer2', key: isElyLogin ? 'login.loginPasswordDisclaimer2Ely' : 'login.loginPasswordDisclaimer2' }
+    ]
+    
+    // Update service icon
+    const serviceIcon = document.getElementById('loginServiceIcon')
+    if (serviceIcon) {
+        serviceIcon.src = isElyLogin ? 'assets/images/icons/elyby.svg' : 'assets/images/icons/mojang.svg'
+        serviceIcon.alt = isElyLogin ? 'ely.by' : 'mojang'
+    }
+    
+    elementsToUpdate.forEach(({ id, key, type = 'innerHTML' }) => {
+        const element = document.getElementById(id)
+        if (element) {
+            if (type === 'placeholder') {
+                element.placeholder = Lang.queryEJS(key)
+            } else if (type === 'href') {
+                element.href = Lang.queryEJS(key)
+            } else {
+                element.innerHTML = Lang.queryEJS(key)
+            }
+        }
+    })
+}
+
 
 /**
  * Show a login error.
@@ -405,3 +444,10 @@ function showTwoFactorDialog(username, password) {
         }
     }
 }
+
+// Initialize translations based on current auth service when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if we're in Ely.by login mode
+    const isElyLogin = window.isElyLogin || false
+    updateLoginTranslations(isElyLogin)
+})

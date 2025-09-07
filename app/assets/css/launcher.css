@@ -495,13 +495,31 @@ body, button {
     margin-bottom: 20px;
 }
 
+/* Header container on login view. */
+#loginHeaderContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 25px;
+}
+
 /* Header on login view. */
 #loginSubheader {
     font-family: 'Avenir Medium';
-    margin-bottom: 25px;
     font-size: 12px;
     letter-spacing: 1px;
     font-weight: bold;
+}
+
+/* Service icon in login header. */
+#loginServiceIcon {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+#loginServiceIcon:hover {
+    opacity: 1;
 }
 
 /* Container to organize login field elements. */

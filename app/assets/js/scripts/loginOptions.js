@@ -13,6 +13,10 @@ if (loginOptionEly) {
             loginCancelEnabled(true)
             // Set flag for using ely.by authentication
             window.isElyLogin = true
+            // Update translations for Ely.by
+            if (typeof updateLoginTranslations === 'function') {
+                updateLoginTranslations(true)
+            }
         })
     }
 }
@@ -35,6 +39,12 @@ if (loginOptionMojang) {
             loginViewOnSuccess = loginOptionsViewOnLoginSuccess
             loginViewOnCancel = loginOptionsViewOnLoginCancel
             loginCancelEnabled(true)
+            // Reset flag for Mojang authentication
+            window.isElyLogin = false
+            // Update translations for Mojang
+            if (typeof updateLoginTranslations === 'function') {
+                updateLoginTranslations(false)
+            }
         })
     }
 }
