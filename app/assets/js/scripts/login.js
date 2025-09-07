@@ -260,7 +260,8 @@ loginButton.addEventListener('click', () => {
         loginLoading(false)
 
         // Check if two-factor authentication is required for ely.by
-        if (isElyLogin && displayableError.requiresTwoFactor) {
+        // Only show 2FA dialog if the error specifically indicates 2FA is required
+        if (isElyLogin && displayableError && displayableError.requiresTwoFactor === true) {
             // Show dialog for TOTP token input
             showTwoFactorDialog(loginUsername.value, loginPassword.value)
             return

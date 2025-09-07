@@ -474,6 +474,12 @@ exports.addElyAccount = async function(username, password, totpToken = null) {
                 })
             }
             
+            // For invalid credentials, return specific error
+            if(response.elyErrorCode === ElyErrorCode.FORBIDDEN_OPERATION) {
+                return Promise.reject(elyErrorDisplayable(ElyErrorCode.FORBIDDEN_OPERATION))
+            }
+            
+            // For other errors, return standard error
             return Promise.reject(elyErrorDisplayable(response.elyErrorCode))
         }
         
