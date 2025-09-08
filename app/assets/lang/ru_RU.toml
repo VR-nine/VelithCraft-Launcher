@@ -115,6 +115,7 @@ languageDesc = "Выберите язык интерфейса лаунчера.
 languageAuto = "Автоматически (по системе)"
 languageEnglish = "English"
 languageRussian = "Русский"
+languageSpanish = "Español"
 allowPrereleaseTitle = "Разрешить предрелизные обновления."
 allowPrereleaseDesc = "Предрелизы содержат новые функции, которые могут быть не полностью протестированы или интегрированы.<br>Это всегда активно, если вы используете предрелизную версию."
 dataDirectoryTitle = "Каталог данных"

@@ -92,7 +92,8 @@ function detectSystemLanguage(){
     // Map common language codes to our supported languages
     const supportedLanguages = {
         'ru': 'ru_RU',
-        'en': 'en_US'
+        'en': 'en_US',
+        'es': 'es_ES'
     }
     
     return supportedLanguages[langCode] || 'en_US'
