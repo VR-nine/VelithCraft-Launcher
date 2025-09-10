@@ -1,5 +1,5 @@
-appId: 'com.jtap.vr9.launcher'
-productName: 'VR nine Launcher'
+appId: 'com.vr9.velithcraft.launcher'
+productName: 'VelithCraft Launcher'
 artifactName: '${productName}-setup-${version}.${ext}'
 
 copyright: 'Copyright © 2025 VR nine'
@@ -14,8 +14,8 @@ extraResources:
   - 'libraries'
 
 # Windows Configuration
-win: 
-  target: 
+win:
+  target:
     - target: 'nsis'
       arch: 'x64'
 
@@ -37,11 +37,11 @@ mac:
   category: 'public.app-category.games'
 
 # Linux Configuration
-linux: 
+linux:
   target: 'AppImage'
   maintainer: 'j-tap'
-  vendor: 'j-tap'
-  synopsis: 'Modded Minecraft Launcher'
+  vendor: 'VelithCraft'
+  synopsis: 'Modded Minecraft Launcher of the VelithCraft server'
   description: 'Custom launcher which allows users to join modded servers. All mods, configurations, and updates are handled automatically.'
   category: 'Game'
 
