@@ -1,5 +1,5 @@
 appId: 'com.vr9.velithcraft.launcher'
-productName: 'VelithCraft Launcher'
+productName: 'VelithCraft-Launcher'
 artifactName: '${productName}-setup-${version}.${ext}'
 
 copyright: 'Copyright © 2025 VR nine'

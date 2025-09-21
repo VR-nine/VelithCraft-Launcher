@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "productName": "VelithCraft Launcher",
   "description": "Modded VelithCraft Minecraft Launcher",
-  "author": "j-tap",
+  "author": "VR-nine",
   "license": "UNLICENSED",
-  "homepage": "https://github.com/j-tap/VR9-HeliosLauncher",
+  "homepage": "http://velithcraft.online",
   "bugs": {
-    "url": "https://github.com/j-tap/VR9-HeliosLauncher/issues"
+    "url": "https://github.com/VR-nine/VelithCraft-Launcher/issues"
   },
   "private": true,
   "main": "index.js",
@@ -46,6 +46,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/j-tap/VR9-HeliosLauncher.git"
+    "url": "git+https://github.com/VR-nine/VelithCraft-Launcher.git"
   }
 }

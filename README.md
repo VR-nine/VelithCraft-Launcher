@@ -1,10 +1,9 @@
-<p align="center"><img src="./app/assets/images/SealCircle.png" width="150px" height="150px" alt="aventium softworks"></p>
+<p align="center"><img src="./app/assets/images/SealCircle.png" width="150px" height="150px" alt="VelithCraft"></p>
 
-<h1 align="center">Helios Launcher</h1>
+<h1 align="center">VelithCraft Launcher</h1>
+<h2 align="center"><small>Fork by <a href="https://github.com/dscalzi/HeliosLauncher" target="_blank">Helios Launcher</a></small></h2>
 
 <em><h5 align="center">(formerly Electron Launcher)</h5></em>
-
-[<p align="center"><img src="https://img.shields.io/github/actions/workflow/status/dscalzi/HeliosLauncher/build.yml?branch=master&style=for-the-badge" alt="gh actions">](https://github.com/dscalzi/HeliosLauncher/actions) [<img src="https://img.shields.io/github/downloads/dscalzi/HeliosLauncher/total.svg?style=for-the-badge" alt="downloads">](https://github.com/dscalzi/HeliosLauncher/releases) <img src="https://forthebadge.com/images/badges/winter-is-coming.svg"  height="28px" alt="winter-is-coming"></p>
 
 <p align="center">Join modded servers without worrying about installing Java, Forge, or other mods. We'll handle that for you.</p>
 
@@ -15,8 +14,8 @@
 
 * 🔒 Full account management.
   * Add multiple accounts and easily switch between them.
-  * Microsoft (OAuth 2.0) + Mojang (Yggdrasil) authentication fully supported.
-  * Credentials are never stored and transmitted directly to Mojang.
+  * [Microsoft (OAuth 2.0)](https://www.microsoft.com/) 
+  * [Ely.by](https://ely.by/)
 * 📂 Efficient asset management.
   * Receive client updates as soon as we release them.
   * Files are validated before launch. Corrupt or incorrect files will be redownloaded.
@@ -39,25 +38,18 @@ This is not an exhaustive list. Download and install the launcher to gauge all i
 
 ## Downloads
 
-You can download from [GitHub Releases](https://github.com/dscalzi/HeliosLauncher/releases)
-
-#### Latest Release
-
-[![](https://img.shields.io/github/release/dscalzi/HeliosLauncher.svg?style=flat-square)](https://github.com/dscalzi/HeliosLauncher/releases/latest)
-
-#### Latest Pre-Release
-[![](https://img.shields.io/github/release/dscalzi/HeliosLauncher/all.svg?style=flat-square)](https://github.com/dscalzi/HeliosLauncher/releases)
+You can download from [GitHub Releases](https://github.com/VR-nine/VelithCraft-Launcher/releases)
 
 **Supported Platforms**
 
-If you download from the [Releases](https://github.com/dscalzi/HeliosLauncher/releases) tab, select the installer for your system.
+If you download from the [Releases](https://github.com/VR-nine/VelithCraft-Launcher/releases) tab, select the installer for your system.
 
 | Platform | File |
 | -------- | ---- |
-| Windows x64 | `Helios-Launcher-setup-VERSION.exe` |
-| macOS x64 | `Helios-Launcher-setup-VERSION-x64.dmg` |
-| macOS arm64 | `Helios-Launcher-setup-VERSION-arm64.dmg` |
-| Linux x64 | `Helios-Launcher-setup-VERSION.AppImage` |
+| Windows x64 | `VelithCraft-Launcher-setup-VERSION.exe` |
+| macOS x64 | `VelithCraft-Launcher-setup-VERSION-x64.dmg` |
+| macOS arm64 | `VelithCraft-Launcher-setup-VERSION-arm64.dmg` |
+| Linux x64 | `VelithCraft-Launcher-setup-VERSION.AppImage` |
 
 ## Console
 
@@ -91,8 +83,8 @@ This section details the setup of a basic developmentment environment.
 **Clone and Install Dependencies**
 
 ```console
-> git clone https://github.com/dscalzi/HeliosLauncher.git
-> cd HeliosLauncher
+> git clone https://github.com/VR-nine/VelithCraft-Launcher.git
+> cd VelithCraft-Launcher
 > npm install
 ```
 
@@ -193,19 +185,17 @@ For instructions on setting up Microsoft Authentication, see https://github.com/
 
 The best way to contact the developers is on Discord.
 
-[![discord](https://discordapp.com/api/guilds/211524927831015424/embed.png?style=banner3)][discord]
+[![discord](https://discordapp.com/api/guilds/211524927831015424/embed.png?style=banner3)](https://discord.gg/zNWUXdt)
 
 ---
 
-### See you ingame.
-
+### See you ingame
 
 [nodejs]: https://nodejs.org/en/ 'Node.js'
 [vscode]: https://code.visualstudio.com/ 'Visual Studio Code'
 [mainprocess]: https://electronjs.org/docs/tutorial/application-architecture#main-and-renderer-processes 'Main Process'
 [rendererprocess]: https://electronjs.org/docs/tutorial/application-architecture#main-and-renderer-processes 'Renderer Process'
 [chromedebugger]: https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome 'Debugger for Chrome'
-[discord]: https://discord.gg/zNWUXdt 'Discord'
-[wiki]: https://github.com/dscalzi/HeliosLauncher/wiki 'wiki'
+[discord]: https://discord.gg/7rHYdaAQ 'Discord'
+[wiki]: https://github.com/VR-nine/VelithCraft-Launcher/wiki 'wiki'
 [nebula]: https://github.com/dscalzi/Nebula 'dscalzi/Nebula'
-[v2branch]: https://github.com/dscalzi/HeliosLauncher/tree/ts-refactor 'v2 branch'
