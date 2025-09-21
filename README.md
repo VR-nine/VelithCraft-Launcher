@@ -29,6 +29,18 @@
   * View the player count of the selected server.
 * Automatic updates. That's right, the launcher updates itself.
 *  View the status of Mojang's services.
+* 🌍 **Multi-language support.**
+  * Interface available in multiple languages including:
+    * English
+    * Russian
+    * Ukrainian
+    * Spanish
+    * Portuguese
+    * German
+    * French
+    * Japanese
+    * Chinese
+  * Easy language switching through settings.
 
 This is not an exhaustive list. Download and install the launcher to gauge all it can do!
 

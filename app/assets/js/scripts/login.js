@@ -312,21 +312,21 @@ function showTwoFactorDialog(username, password) {
     
     totpDialog.innerHTML = `
         <div style="background: rgba(0, 0, 0, 0.25); padding: 30px; border-radius: 3px; max-width: 400px; width: 90%; border: 1px solid rgba(126, 126, 126, 0.57);">
-            <h3 style="color: #fff; margin-bottom: 20px; text-align: center; font-family: 'Avenir Medium'; font-size: 20px; font-weight: bold; letter-spacing: 1px;">${Lang.queryJS('settings.twoFactorAuth')}</h3>
+            <h3 style="color: #fff; margin-bottom: 20px; text-align: center; font-size: 20px; font-weight: bold; letter-spacing: 1px;">${Lang.queryJS('settings.twoFactorAuth')}</h3>
             <p style="color: rgba(255, 255, 255, 0.75); margin-bottom: 20px; text-align: center; font-size: 12px; font-weight: bold;">
                 ${Lang.queryJS('settings.enterCodeTwoFactor')}:
             </p>
             <input type="text" id="totpToken" placeholder="000000" maxlength="6" 
                    style="display: block; width: 160px; padding: 7.5px; margin: 0 auto 20px; border: 1.5px solid #fff; border-width: 1.5px 0px 0px 0px; 
                           background: none; color: rgba(255, 255, 255, 0.75); border-radius: 0px; text-align: center; font-size: 18px; 
-                          font-family: 'Avenir Book'; font-weight: bold; letter-spacing: 1px; box-sizing: border-box; outline: none;">
+                          font-weight: bold; letter-spacing: 1px; box-sizing: border-box; outline: none;">
             <div style="display: flex; gap: 10px;">
                 <button id="totpCancel" style="flex: 1; padding: 15px 5px; background: none; color: #fff; 
                         border: none; border-radius: 0px; cursor: pointer; font-weight: bold; letter-spacing: 2px; 
-                        transition: 0.5s ease; font-family: 'Avenir Book';">${Lang.queryJS('login.loginCancelText')}</button>
+                        transition: 0.5s ease;">${Lang.queryJS('login.loginCancelText')}</button>
                 <button id="totpSubmit" style="flex: 1; padding: 15px 5px; background: none; color: #fff; 
                         border: none; border-radius: 0px; cursor: pointer; font-weight: bold; letter-spacing: 2px; 
-                        transition: 0.5s ease; font-family: 'Avenir Book';">${Lang.queryJS('overlay.serverSelectConfirm')}</button>
+                        transition: 0.5s ease;">${Lang.queryJS('overlay.serverSelectConfirm')}</button>
             </div>
         </div>
     `
