@@ -1,0 +1,387 @@
+[ejs.landing]
+updateAvailableTooltip = "Update verfügbar"
+usernamePlaceholder = "Benutzername"
+usernameEditButton = "Bearbeiten"
+settingsTooltip = "Einstellungen"
+serverStatus = "SERVER"
+serverStatusPlaceholder = "OFFLINE"
+mojangStatus = "MOJANG STATUS"
+mojangStatusTooltipTitle = "Dienste"
+mojangStatusNETitle = "Nicht&nbsp;essentiell"
+newsButton = "NEWS"
+launchButton = "SPIELEN"
+launchButtonPlaceholder = "&#8226; Kein Server ausgewählt"
+launchDetails = "Bitte warten.."
+newsNavigationStatus = "{currentPage} von {totalPages}"
+newsErrorLoadSpan = "Nachrichten werden überprüft.."
+newsErrorFailedSpan = "Nachrichten konnten nicht geladen werden"
+newsErrorRetryButton = "Erneut versuchen"
+newsErrorNoneSpan = "Keine Nachrichten"
+
+[ejs.login]
+loginCancelText = "Abbrechen"
+loginSubheader = "MINECRAFT ANMELDUNG"
+loginSubheaderEly = "ELY.BY ANMELDUNG"
+loginEmailError = "* Ungültiger Wert"
+loginEmailPlaceholder = "E-MAIL ODER BENUTZERNAME"
+loginEmailPlaceholderEly = "BENUTZERNAME"
+loginPasswordError = "* Erforderlich"
+loginPasswordPlaceholder = "PASSWORT"
+loginForgotPasswordLink = "https://minecraft.net/password/forgot/"
+loginForgotPasswordLinkEly = "https://account.ely.by/password/forgot/"
+loginForgotPasswordText = "Passwort vergessen?"
+loginRememberMeText = "Angemeldet bleiben?"
+loginButtonText = "ANMELDEN"
+loginNeedAccountLinkMinecraft = "https://minecraft.net/store/minecraft-java-edition/"
+loginNeedAccountLinkElyby = "https://account.ely.by/register"
+loginNeedAccountText = "Benötigen Sie ein Konto?"
+loginServiceElyby = "Anmelden über Ely.by"
+loginServiceMojang = "Anmelden über Mojang"
+loginPasswordDisclaimer1 = "Ihr Passwort wird direkt an Mojang gesendet und niemals gespeichert."
+loginPasswordDisclaimer1Ely = "Ihr Passwort wird direkt an Ely.by gesendet und niemals gespeichert."
+loginPasswordDisclaimer2 = "{appName} ist nicht mit Mojang AB verbunden."
+loginPasswordDisclaimer2Ely = "{appName} ist nicht mit Ely.by verbunden."
+
+[ejs.loginOptions]
+loginOptionsTitle = "Anmeldeoptionen"
+loginWithMicrosoft = "Mit Microsoft anmelden"
+loginWithMojang = "Mit Mojang anmelden"
+loginWithEly = "Mit Ely.by anmelden"
+cancelButton = "Abbrechen"
+
+[ejs.overlay]
+serverSelectHeader = "Verfügbare Server"
+serverSelectConfirm = "Auswählen"
+serverSelectCancel = "Abbrechen"
+accountSelectHeader = "Konto auswählen"
+accountSelectConfirm = "Auswählen"
+accountSelectCancel = "Abbrechen"
+
+[ejs.settings]
+navHeaderText = "Einstellungen"
+navAccount = "Konto"
+navMinecraft = "Minecraft"
+navMods = "Mods"
+navJava = "Java"
+navLauncher = "Launcher"
+navAbout = "Über"
+navUpdates = "Updates"
+navDone = "Fertig"
+tabAccountHeaderText = "Kontoeinstellungen"
+tabAccountHeaderDesc = "Neue Konten hinzufügen oder vorhandene verwalten."
+microsoftAccount = "Microsoft"
+addMicrosoftAccount = "+ Microsoft-Konto hinzufügen"
+elyAccount = "Ely.by"
+addElyAccount = "+ Ely.by-Konto hinzufügen"
+mojangAccount = "Mojang"
+addMojangAccount = "+ Mojang-Konto hinzufügen"
+minecraftTabHeaderText = "Minecraft-Einstellungen"
+minecraftTabHeaderDesc = "Optionen im Zusammenhang mit dem Spielstart."
+gameResolutionTitle = "Spielauflösung"
+launchFullscreenTitle = "Im Vollbildmodus starten."
+autoConnectTitle = "Beim Start automatisch mit dem Server verbinden."
+launchDetachedTitle = "Spielprozess vom Launcher trennen."
+launchDetachedDesc = "Wenn das Spiel nicht getrennt ist, wird das Spiel auch geschlossen, wenn der Launcher geschlossen wird."
+tabModsHeaderText = "Mod-Einstellungen"
+tabModsHeaderDesc = "Mods aktivieren oder deaktivieren."
+switchServerButton = "Wechseln"
+requiredMods = "Erforderliche Mods"
+optionalMods = "Optionale Mods"
+dropinMods = "Drop-in Mods"
+addMods = "Mods hinzufügen"
+dropinRefreshNote = "(F5 zum Aktualisieren)"
+shaderpacks = "Shader-Pakete"
+shaderpackDesc = "Shader aktivieren oder deaktivieren. Beachten Sie, dass Shader nur auf leistungsstarken Systemen reibungslos funktionieren. Sie können hier benutzerdefinierte Pakete hinzufügen."
+selectShaderpack = "Shader-Paket auswählen"
+tabJavaHeaderText = "Java-Einstellungen"
+tabJavaHeaderDesc = "Java-Konfiguration verwalten (erweitert)."
+memoryTitle = "Speicher"
+maxRAM = "Maximales RAM"
+minRAM = "Minimales RAM"
+memoryDesc = "Das empfohlene Mindest-RAM beträgt 3 Gigabyte. Das Festlegen der Mindest- und Maximalwerte auf denselben Wert kann Lags reduzieren."
+memoryTotalTitle = "Gesamt"
+memoryAvailableTitle = "Verfügbar"
+javaExecutableTitle = "Java-Ausführungsdatei"
+javaExecSelDialogTitle = "Java-Ausführungsdatei auswählen"
+javaExecSelButtonText = "Datei auswählen"
+javaExecDesc = "Die Java-Ausführungsdatei wird vor dem Spielstart validiert."
+javaPathDesc = "Der Pfad muss mit <strong>{pathSuffix}</strong> enden."
+jvmOptsTitle = "Zusätzliche JVM-Optionen"
+jvmOptsDesc = "Optionen, die zur Laufzeit an die JVM übergeben werden. <em>-Xms</em> und <em>-Xmx</em> sollten nicht enthalten sein."
+launcherTabHeaderText = "Launcher-Einstellungen"
+launcherTabHeaderDesc = "Optionen im Zusammenhang mit dem Launcher selbst."
+languageTitle = "Sprache"
+languageDesc = "Wählen Sie die Sprache für die Launcher-Oberfläche."
+languageAuto = "Auto (System)"
+languageEnglish = "English"
+languageRussian = "Русский"
+languageSpanish = "Español"
+languageChinese = "中文"
+languageFrench = "Français"
+languagePortuguese = "Português"
+languageJapanese = "日本語"
+languageGerman = "Deutsch"
+languageUkrainian = "Українська"
+allowPrereleaseTitle = "Pre-Release-Updates zulassen."
+allowPrereleaseDesc = "Pre-Releases enthalten neue Funktionen, die möglicherweise nicht vollständig getestet oder integriert wurden.<br>Dies ist immer wahr, wenn Sie eine Pre-Release-Version verwenden."
+dataDirectoryTitle = "Datenverzeichnis"
+selectDataDirectory = "Datenverzeichnis auswählen"
+chooseFolder = "Ordner auswählen"
+dataDirectoryDesc = "Alle Spieldateien und lokalen Java-Installationen werden im Datenverzeichnis gespeichert.<br>Screenshots und Weltspeicherstände werden im Instanzordner für die entsprechende Serverkonfiguration gespeichert."
+aboutTabHeaderText = "Über"
+aboutTabHeaderDesc = "Informationen und Versionshinweise für die aktuelle Version anzeigen."
+aboutTitle = "{appName}"
+stableRelease = "Stabile Version"
+versionText = "Version "
+sourceGithub = "Quellcode (GitHub)"
+support = "Support"
+devToolsConsole = "DevTools-Konsole"
+releaseNotes = "Versionshinweise"
+changelog = "Änderungsprotokoll"
+noReleaseNotes = "Keine Versionshinweise"
+viewReleaseNotes = "Versionshinweise auf GitHub anzeigen"
+launcherUpdatesHeaderText = "Launcher-Updates"
+launcherUpdatesHeaderDesc = "Updates für den Launcher herunterladen, installieren und überprüfen."
+checkForUpdates = "Nach Updates suchen"
+whatsNew = "Was ist neu"
+updateReleaseNotes = "Versionshinweise aktualisieren"
+
+[ejs.waiting]
+waitingText = "Warten.."
+
+[ejs.welcome]
+continueButton = "WEITER"
+
+[js.discord]
+waiting = "Auf Client warten.."
+state = "Server: {shortId}"
+
+[js.index]
+microsoftLoginTitle = "Microsoft-Anmeldung"
+microsoftLogoutTitle = "Microsoft-Abmeldung"
+
+[js.login]
+login = "ANMELDEN"
+loggingIn = "ANMELDEN"
+success = "ERFOLGREICH"
+tryAgain = "Erneut versuchen"
+loginCancelText = "Abbrechen"
+
+[js.login.error]
+invalidValue = "* Ungültiger Wert"
+requiredValue = "* Erforderlich"
+
+[js.login.error.unknown]
+title = "Unbekannter Fehler bei der Anmeldung"
+desc = "Ein unbekannter Fehler ist aufgetreten. Weitere Details finden Sie in der Konsole."
+
+[js.landing.launch]
+pleaseWait = "Bitte warten.."
+failureTitle = "Fehler beim Start"
+failureText = "Weitere Details finden Sie in der Konsole (CTRL + Shift + i)."
+okay = "OK"
+
+[js.landing.selectedAccount]
+noAccountSelected = "Kein Konto ausgewählt"
+
+[js.landing.selectedServer]
+noSelection = "Kein Server ausgewählt"
+loading = "Laden.."
+
+[js.landing.serverStatus]
+server = "SERVER"
+offline = "OFFLINE"
+players = "SPIELER"
+
+[js.landing.systemScan]
+checking = "Systeminformationen werden überprüft.."
+noCompatibleJava = "Keine kompatible<br>Java-Installation gefunden"
+installJavaMessage = "Um Minecraft zu starten, benötigen Sie eine 64-Bit-Installation von Java {major}. Möchten Sie, dass wir eine Kopie installieren?"
+installJava = "Java installieren"
+installJavaManually = "Manuell installieren"
+javaDownloadPrepare = "Java-Download wird vorbereitet.."
+javaDownloadFailureTitle = "Fehler beim Java-Download"
+javaDownloadFailureText = "Weitere Details finden Sie in der Konsole (CTRL + Shift + i)."
+javaRequired = "Java ist erforderlich<br>zum Starten"
+javaRequiredMessage = "Eine gültige Java {major} x64-Installation ist erforderlich, um zu starten.<br><br>Weitere Informationen finden Sie in unserem <a href=\"https://github.com/dscalzi/HeliosLauncher/wiki/Java-Management#manually-installing-a-valid-version-of-java\">Java-Verwaltungsleitfaden</a> für Anweisungen zur manuellen Installation von Java."
+javaRequiredDismiss = "Verstanden"
+javaRequiredCancel = "Zurück"
+
+[js.landing.downloadJava]
+findJdkFailure = "OpenJDK-Distribution konnte nicht gefunden werden."
+javaDownloadCorruptedError = "Der heruntergeladene JDK hat einen fehlerhaften Hash, die Datei könnte beschädigt sein."
+extractingJava = "Java wird extrahiert"
+javaInstalled = "Java installiert!"
+
+[js.landing.dlAsync]
+loadingServerInfo = "Serverinformationen werden geladen.."
+fatalError = "Schwerwiegender Fehler"
+unableToLoadDistributionIndex = "Eine Kopie des Distributionsindex konnte nicht geladen werden. Weitere Details finden Sie in der Konsole (CTRL + Shift + i)."
+pleaseWait = "Bitte warten.."
+errorDuringLaunchTitle = "Fehler beim Start"
+seeConsoleForDetails = "Weitere Details finden Sie in der Konsole (CTRL + Shift + i)."
+validatingFileIntegrity = "Dateiintegrität wird validiert.."
+errorDuringFileVerificationTitle = "Fehler bei der Dateiverifizierung"
+downloadingFiles = "Dateien werden heruntergeladen.."
+errorDuringFileDownloadTitle = "Fehler beim Herunterladen von Dateien"
+preparingToLaunch = "Start wird vorbereitet.."
+launchingGame = "Spiel wird gestartet.."
+launchWrapperNotDownloaded = "Die Hauptdatei LaunchWrapper konnte nicht ordnungsgemäß heruntergeladen werden. Infolgedessen kann das Spiel nicht gestartet werden.<br><br>Um dieses Problem zu beheben, deaktivieren Sie vorübergehend Ihre Antivirus-Software und starten Sie das Spiel erneut.<br><br>Falls Sie Zeit haben, <a href=\"https://github.com/j-tap/VR9-HeliosLauncher/issues\">melden Sie bitte ein Problem</a> und teilen Sie uns mit, welche Antivirus-Software Sie verwenden. Wir werden uns mit ihnen in Verbindung setzen und versuchen, die Dinge zu klären."
+doneEnjoyServer = "Fertig. Viel Spaß mit dem Server!"
+checkConsoleForDetails = "Weitere Details finden Sie in der Konsole (CTRL + Shift + i)."
+
+[js.landing.news]
+checking = "Nachrichten werden überprüft"
+
+[js.landing.discord]
+loading = "Spiel wird geladen.."
+joining = "Segeln nach Westeros!"
+joined = "Das Königreich erkunden!"
+
+[js.overlay]
+dismiss = "Verwerfen"
+serverSelectConfirm = "Auswählen"
+
+[js.settings]
+twoFactorAuth = "Zwei-Faktor-Authentifizierung"
+enterCodeTwoFactor = "Geben Sie den Code aus Ihrer Authentifizierungs-App ein"
+
+[js.settings.fileSelectors]
+executables = "Ausführbare Dateien"
+allFiles = "Alle Dateien"
+
+[js.settings.mstfLogin]
+errorTitle = "Etwas ist schiefgelaufen"
+errorMessage = "Microsoft-Authentifizierung fehlgeschlagen. Bitte versuchen Sie es erneut."
+okButton = "OK"
+
+[js.settings.mstfLogout]
+errorTitle = "Etwas ist schiefgelaufen"
+errorMessage = "Microsoft-Abmeldung fehlgeschlagen. Bitte versuchen Sie es erneut."
+okButton = "OK"
+
+[js.settings.authAccountSelect]
+selectButton = "Konto auswählen"
+selectedButton = "Ausgewähltes Konto &#10004;"
+
+[js.settings.authAccountLogout]
+lastAccountWarningTitle = "Warnung<br>Dies ist Ihr letztes Konto"
+lastAccountWarningMessage = "Um den Launcher zu verwenden, müssen Sie bei mindestens einem Konto angemeldet sein. Sie müssen sich nachher erneut anmelden.<br><br>Sind Sie sicher, dass Sie sich abmelden möchten?"
+confirmButton = "Ich bin mir sicher"
+cancelButton = "Abbrechen"
+
+[js.settings.authAccountPopulate]
+username = "Benutzername"
+uuid = "UUID"
+selectAccount = "Konto auswählen"
+selectedAccount = "Ausgewähltes Konto ✓"
+logout = "Abmelden"
+
+[js.settings.dropinMods]
+removeButton = "Entfernen"
+deleteFailedTitle = "Löschen fehlgeschlagen<br>Drop-in Mod {fullName}"
+deleteFailedMessage = "Stellen Sie sicher, dass die Datei nicht verwendet wird, und versuchen Sie es erneut."
+failedToggleTitle = "Fehler beim Umschalten<br>eines oder mehrerer Drop-in Mods"
+okButton = "OK"
+
+[js.settings.serverListing]
+mainServer = "Hauptserver"
+
+[js.settings.java]
+selectedJava = "Ausgewählt: Java {version} ({vendor})"
+invalidSelection = "Ungültige Auswahl"
+requiresJava = "Erfordert Java {major} x64."
+availableOptions = "Verfügbare Optionen für Java {major} (HotSpot VM)"
+
+[js.settings.about]
+preReleaseTitle = "Pre-Release"
+stableReleaseTitle = "Stabile Version"
+releaseNotesFailed = "Versionshinweise konnten nicht geladen werden."
+
+[js.settings.updates]
+newReleaseTitle = "Neue Version verfügbar"
+newPreReleaseTitle = "Neue Pre-Release-Version verfügbar"
+downloadingButton = "Herunterladen.."
+downloadButton = "Von GitHub herunterladen<span style=\"font-size: 10px;color: gray;text-shadow: none !important;\">Schließen Sie den Launcher und führen Sie die dmg aus, um zu aktualisieren.</span>"
+latestVersionTitle = "Sie verwenden die neueste Version"
+checkForUpdatesButton = "Nach Updates suchen"
+checkingForUpdatesButton = "Updates werden überprüft.."
+
+[js.settings.msftLogin]
+errorTitle = "Microsoft-Anmeldung fehlgeschlagen"
+errorMessage = "Wir konnten Ihr Microsoft-Konto nicht authentifizieren. Bitte versuchen Sie es erneut."
+okButton = "OK"
+
+[js.uibinder.startup]
+fatalErrorTitle = "Schwerwiegender Fehler: Distributionsindex kann nicht geladen werden"
+fatalErrorMessage = "Es konnte keine Verbindung zu unseren Servern hergestellt werden, um den Distributionsindex herunterzuladen. Es waren keine lokalen Kopien zum Laden verfügbar.<br><br>Der Distributionsindex ist eine wesentliche Datei, die die neuesten Serverinformationen bereitstellt. Der Launcher kann ohne ihn nicht starten. Stellen Sie sicher, dass Sie mit dem Internet verbunden sind, und starten Sie die Anwendung neu."
+closeButton = "Schließen"
+
+[js.uibinder.validateAccount]
+failedMessageTitle = "Anmeldung konnte nicht aktualisiert werden"
+failedMessage = "Wir konnten die Anmeldung für <strong>{account}</strong> nicht aktualisieren. Wählen Sie ein anderes Konto aus oder melden Sie sich erneut an."
+failedMessageSelectAnotherAccount = "Wir konnten die Anmeldung für <strong>{account}</strong> nicht aktualisieren. Bitte melden Sie sich erneut an."
+loginButton = "Anmelden"
+selectAnotherAccountButton = "Anderes Konto auswählen"
+
+[js.uicore.autoUpdate]
+checkingForUpdateButton = "Updates werden überprüft..."
+installNowButton = "Jetzt installieren"
+checkForUpdatesButton = "Nach Updates suchen"
+
+[js.auth.microsoft.error]
+noProfileTitle = "Fehler bei der Anmeldung:<br>Profil nicht eingerichtet"
+noProfileDesc = "Ihr Microsoft-Konto hat noch kein Minecraft-Profil eingerichtet. Wenn Sie das Spiel kürzlich gekauft oder über Xbox Game Pass eingelöst haben, müssen Sie Ihr Profil auf <a href=\"https://minecraft.net/\">Minecraft.net</a> einrichten.<br><br>Wenn Sie das Spiel noch nicht gekauft haben, können Sie dies auch auf <a href=\"https://minecraft.net/\">Minecraft.net</a> tun."
+noXboxAccountTitle = "Fehler bei der Anmeldung:<br>Kein Xbox-Konto"
+noXboxAccountDesc = "Ihr Microsoft-Konto hat kein zugehöriges Xbox-Konto."
+xblBannedTitle = "Fehler bei der Anmeldung:<br>Xbox Live nicht verfügbar"
+xblBannedDesc = "Ihr Microsoft-Konto stammt aus einem Land, in dem Xbox Live nicht verfügbar oder verboten ist."
+under18Title = "Fehler bei der Anmeldung:<br>Elternzustimmung erforderlich"
+under18Desc = "Konten für Benutzer unter 18 Jahren müssen von einem Erwachsenen zu einer Familie hinzugefügt werden."
+unknownTitle = "Unbekannter Fehler bei der Anmeldung"
+unknownDesc = "Ein unbekannter Fehler ist aufgetreten. Weitere Details finden Sie in der Konsole."
+
+[js.auth.mojang.error]
+methodNotAllowedTitle = "Interner Fehler:<br>Methode nicht erlaubt"
+methodNotAllowedDesc = "Methode nicht erlaubt. Bitte melden Sie diesen Fehler."
+notFoundTitle = "Interner Fehler:<br>Nicht gefunden"
+notFoundDesc = "Der Authentifizierungsendpunkt wurde nicht gefunden. Bitte melden Sie dieses Problem."
+accountMigratedTitle = "Fehler bei der Anmeldung:<br>Konto migriert"
+accountMigratedDesc = "Sie haben versucht, sich mit einem migrierten Konto anzumelden. Versuchen Sie es erneut mit der E-Mail-Adresse des Kontos als Benutzername."
+invalidCredentialsTitle = "Fehler bei der Anmeldung:<br>Ungültige Anmeldedaten"
+invalidCredentialsDesc = "Die eingegebene E-Mail oder das Passwort ist falsch. Bitte versuchen Sie es erneut."
+tooManyAttemptsTitle = "Fehler bei der Anmeldung:<br>Zu viele Versuche"
+tooManyAttemptsDesc = "Es gab zu viele Anmeldeversuche mit diesem Konto in letzter Zeit. Bitte versuchen Sie es später erneut."
+invalidTokenTitle = "Fehler bei der Anmeldung:<br>Ungültiger Token"
+invalidTokenDesc = "Der bereitgestellte Zugriffstoken ist ungültig."
+tokenHasProfileTitle = "Fehler bei der Anmeldung:<br>Token hat Profil"
+tokenHasProfileDesc = "Der Zugriffstoken hat bereits ein zugewiesenes Profil. Die Profilauswahl ist noch nicht implementiert."
+credentialsMissingTitle = "Fehler bei der Anmeldung:<br>Anmeldedaten fehlen"
+credentialsMissingDesc = "Benutzername/Passwort wurde nicht übermittelt oder das Passwort hat weniger als 3 Zeichen."
+invalidSaltVersionTitle = "Fehler bei der Anmeldung:<br>Ungültige Salt-Version"
+invalidSaltVersionDesc = "Ungültige Salt-Version."
+unsupportedMediaTypeTitle = "Interner Fehler:<br>Nicht unterstützter Medientyp"
+unsupportedMediaTypeDesc = "Nicht unterstützter Medientyp. Bitte melden Sie diesen Fehler."
+accountGoneTitle = "Fehler bei der Anmeldung:<br>Konto migriert"
+accountGoneDesc = "Das Konto wurde zu einem Microsoft-Konto migriert. Bitte melden Sie sich mit Microsoft an."
+unreachableTitle = "Fehler bei der Anmeldung:<br>Nicht erreichbar"
+unreachableDesc = "Die Authentifizierungsserver sind nicht erreichbar. Stellen Sie sicher, dass sie online sind und Sie mit dem Internet verbunden sind."
+gameNotPurchasedTitle = "Fehler bei der Anmeldung:<br>Spiel nicht gekauft"
+gameNotPurchasedDesc = "Das Konto, mit dem Sie sich anzumelden versuchen, hat keine Kopie von Minecraft gekauft. Sie können eine Kopie auf <a href=\"https://minecraft.net/\">Minecraft.net</a> kaufen"
+unknownErrorTitle = "Unbekannter Fehler bei der Anmeldung"
+unknownErrorDesc = "Ein unbekannter Fehler ist aufgetreten. Weitere Details finden Sie in der Konsole."
+
+[js.auth.ely.error]
+illegalArgumentTitle = "Fehler bei der Anmeldung:<br>Ungültige Anfrage"
+illegalArgumentDesc = "Die Anfrage enthält ungültige oder fehlende Daten. Überprüfen Sie Ihre Eingabe und versuchen Sie es erneut."
+forbiddenOperationTitle = "Fehler bei der Anmeldung:<br>Ungültige Anmeldedaten"
+forbiddenOperationDesc = "Der eingegebene Benutzername oder das Passwort ist falsch. Bitte versuchen Sie es erneut."
+twoFactorRequiredTitle = "Zwei-Faktor-Authentifizierung erforderlich"
+twoFactorRequiredDesc = "Ihr Konto ist mit Zwei-Faktor-Authentifizierung geschützt. Geben Sie den Code aus Ihrer Authentifizierungs-App ein."
+unknownTitle = "Unbekannter Fehler bei der Anmeldung"
+unknownDesc = "Ein unbekannter Fehler ist aufgetreten. Weitere Details finden Sie in der Konsole."
+
+[js.settings.language]
+languageChangedTitle = "Sprache geändert"
+languageChangedMessage = "Die Oberflächensprache wurde geändert. Starten Sie den Launcher neu, um die Änderungen zu übernehmen."
+okButton = "OK"
