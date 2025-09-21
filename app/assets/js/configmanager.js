@@ -58,7 +58,7 @@ exports.getAbsoluteMinRAM = function(ram){
     } else {
         // Legacy behavior
         const mem = os.totalmem()
-        return mem >= (6*1073741824) ? 3 : 2
+        return 6
     }
 }
 
@@ -74,7 +74,7 @@ function resolveSelectedRAM(ram) {
     } else {
         // Legacy behavior
         const mem = os.totalmem()
-        return mem >= (8*1073741824) ? '4G' : (mem >= (6*1073741824) ? '3G' : '2G')
+        return mem >= (8*1073741824) ? '8G' : '6G'
     }
 }
 
