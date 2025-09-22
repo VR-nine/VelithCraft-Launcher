@@ -1,7 +1,68 @@
 const loginOptionsCancelContainer = document.getElementById('loginOptionCancelContainer')
+const loginOptionEly = document.getElementById('loginOptionEly')
 const loginOptionMicrosoft = document.getElementById('loginOptionMicrosoft')
 const loginOptionMojang = document.getElementById('loginOptionMojang')
 const loginOptionsCancelButton = document.getElementById('loginOptionCancelButton')
+
+// Check that elements exist before binding events
+if (loginOptionEly) {
+    loginOptionEly.onclick = (e) => {
+        switchView(getCurrentView(), VIEWS.login, 500, 500, () => {
+            loginViewOnSuccess = loginOptionsViewOnLoginSuccess
+            loginViewOnCancel = loginOptionsViewOnLoginCancel
+            loginCancelEnabled(true)
+            // Set flag for using ely.by authentication
+            window.isElyLogin = true
+            // Update translations for Ely.by
+            if (typeof updateLoginTranslations === 'function') {
+                updateLoginTranslations(true)
+            }
+        })
+    }
+}
+
+if (loginOptionMicrosoft) {
+    loginOptionMicrosoft.onclick = (e) => {
+        switchView(getCurrentView(), VIEWS.waiting, 500, 500, () => {
+            ipcRenderer.send(
+                MSFT_OPCODE.OPEN_LOGIN,
+                loginOptionsViewOnLoginSuccess,
+                loginOptionsViewOnLoginCancel
+            )
+        })
+    }
+}
+
+if (loginOptionMojang) {
+    loginOptionMojang.onclick = (e) => {
+        switchView(getCurrentView(), VIEWS.login, 500, 500, () => {
+            loginViewOnSuccess = loginOptionsViewOnLoginSuccess
+            loginViewOnCancel = loginOptionsViewOnLoginCancel
+            loginCancelEnabled(true)
+            // Reset flag for Mojang authentication
+            window.isElyLogin = false
+            // Update translations for Mojang
+            if (typeof updateLoginTranslations === 'function') {
+                updateLoginTranslations(false)
+            }
+        })
+    }
+}
+
+if (loginOptionsCancelButton) {
+    loginOptionsCancelButton.onclick = (e) => {
+        switchView(getCurrentView(), loginOptionsViewOnCancel, 500, 500, () => {
+            // Clear login values (Mojang login)
+            // No cleanup needed for Microsoft.
+            loginUsername.value = ''
+            loginPassword.value = ''
+            if(loginOptionsViewCancelHandler != null){
+                loginOptionsViewCancelHandler()
+                loginOptionsViewCancelHandler = null
+            }
+        })
+    }
+}
 
 let loginOptionsCancellable = false
 
@@ -16,35 +77,4 @@ function loginOptionsCancelEnabled(val){
     } else {
         $(loginOptionsCancelContainer).hide()
     }
-}
-
-loginOptionMicrosoft.onclick = (e) => {
-    switchView(getCurrentView(), VIEWS.waiting, 500, 500, () => {
-        ipcRenderer.send(
-            MSFT_OPCODE.OPEN_LOGIN,
-            loginOptionsViewOnLoginSuccess,
-            loginOptionsViewOnLoginCancel
-        )
-    })
-}
-
-loginOptionMojang.onclick = (e) => {
-    switchView(getCurrentView(), VIEWS.login, 500, 500, () => {
-        loginViewOnSuccess = loginOptionsViewOnLoginSuccess
-        loginViewOnCancel = loginOptionsViewOnLoginCancel
-        loginCancelEnabled(true)
-    })
-}
-
-loginOptionsCancelButton.onclick = (e) => {
-    switchView(getCurrentView(), loginOptionsViewOnCancel, 500, 500, () => {
-        // Clear login values (Mojang login)
-        // No cleanup needed for Microsoft.
-        loginUsername.value = ''
-        loginPassword.value = ''
-        if(loginOptionsViewCancelHandler != null){
-            loginOptionsViewCancelHandler()
-            loginOptionsViewCancelHandler = null
-        }
-    })
 }

@@ -21,6 +21,45 @@ const loginForm             = document.getElementById('loginForm')
 // Control variables.
 let lu = false, lp = false
 
+/**
+ * Update login form translations based on selected auth service
+ * 
+ * @param {boolean} isElyLogin True if Ely.by login, false if Mojang login
+ */
+function updateLoginTranslations(isElyLogin) {
+    const Lang = require('./assets/js/langloader')
+    
+    // Update elements that need dynamic translation
+    const elementsToUpdate = [
+        { id: 'loginSubheader', key: isElyLogin ? 'login.loginSubheaderEly' : 'login.loginSubheader' },
+        { id: 'loginUsername', key: isElyLogin ? 'login.loginEmailPlaceholderEly' : 'login.loginEmailPlaceholder', type: 'placeholder' },
+        { id: 'loginForgotPasswordLink', key: isElyLogin ? 'login.loginForgotPasswordLinkEly' : 'login.loginForgotPasswordLink', type: 'href' },
+        { id: 'loginNeedAccountLink', key: isElyLogin ? 'login.loginNeedAccountLinkElyby' : 'login.loginNeedAccountLinkMinecraft', type: 'href' },
+        { id: 'loginPasswordDisclaimer1', key: isElyLogin ? 'login.loginPasswordDisclaimer1Ely' : 'login.loginPasswordDisclaimer1' },
+        { id: 'loginPasswordDisclaimer2', key: isElyLogin ? 'login.loginPasswordDisclaimer2Ely' : 'login.loginPasswordDisclaimer2' }
+    ]
+    
+    // Update service icon
+    const serviceIcon = document.getElementById('loginServiceIcon')
+    if (serviceIcon) {
+        serviceIcon.src = isElyLogin ? 'assets/images/icons/elyby.svg' : 'assets/images/icons/mojang.svg'
+        serviceIcon.alt = isElyLogin ? 'ely.by' : 'mojang'
+    }
+    
+    elementsToUpdate.forEach(({ id, key, type = 'innerHTML' }) => {
+        const element = document.getElementById(id)
+        if (element) {
+            if (type === 'placeholder') {
+                element.placeholder = Lang.queryEJS(key)
+            } else if (type === 'href') {
+                element.href = Lang.queryEJS(key)
+            } else {
+                element.innerHTML = Lang.queryEJS(key)
+            }
+        }
+    })
+}
+
 
 /**
  * Show a login error.
@@ -187,7 +226,14 @@ loginButton.addEventListener('click', () => {
     // Show loading stuff.
     loginLoading(true)
 
-    AuthManager.addMojangAccount(loginUsername.value, loginPassword.value).then((value) => {
+    // Determine authentication type
+    const isElyLogin = window.isElyLogin || false
+    
+    const authPromise = isElyLogin 
+        ? AuthManager.addElyAccount(loginUsername.value, loginPassword.value)
+        : AuthManager.addMojangAccount(loginUsername.value, loginPassword.value)
+
+    authPromise.then((value) => {
         updateSelectedAccount(value)
         loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.loggingIn'), Lang.queryJS('login.success'))
         $('.circle-loader').toggleClass('load-complete')
@@ -213,6 +259,14 @@ loginButton.addEventListener('click', () => {
     }).catch((displayableError) => {
         loginLoading(false)
 
+        // Check if two-factor authentication is required for ely.by
+        // Only show 2FA dialog if the error specifically indicates 2FA is required
+        if (isElyLogin && displayableError && displayableError.requiresTwoFactor === true) {
+            // Show dialog for TOTP token input
+            showTwoFactorDialog(loginUsername.value, loginPassword.value)
+            return
+        }
+
         let actualDisplayableError
         if(isDisplayableError(displayableError)) {
             msftLoginLogger.error('Error while logging in.', displayableError)
@@ -231,4 +285,170 @@ loginButton.addEventListener('click', () => {
         toggleOverlay(true)
     })
 
+})
+
+/**
+ * Show dialog for TOTP token input for two-factor authentication
+ * 
+ * @param {string} username Username
+ * @param {string} password User password
+ */
+function showTwoFactorDialog(username, password) {
+    // Create dialog for TOTP token input
+    const totpDialog = document.createElement('div')
+    totpDialog.id = 'totpDialog'
+    totpDialog.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    `
+    
+    totpDialog.innerHTML = `
+        <div style="background: rgba(0, 0, 0, 0.25); padding: 30px; border-radius: 3px; max-width: 400px; width: 90%; border: 1px solid rgba(126, 126, 126, 0.57);">
+            <h3 style="color: #fff; margin-bottom: 20px; text-align: center; font-size: 20px; font-weight: bold; letter-spacing: 1px;">${Lang.queryJS('settings.twoFactorAuth')}</h3>
+            <p style="color: rgba(255, 255, 255, 0.75); margin-bottom: 20px; text-align: center; font-size: 12px; font-weight: bold;">
+                ${Lang.queryJS('settings.enterCodeTwoFactor')}:
+            </p>
+            <input type="text" id="totpToken" placeholder="000000" maxlength="6" 
+                   style="display: block; width: 160px; padding: 7.5px; margin: 0 auto 20px; border: 1.5px solid #fff; border-width: 1.5px 0px 0px 0px; 
+                          background: none; color: rgba(255, 255, 255, 0.75); border-radius: 0px; text-align: center; font-size: 18px; 
+                          font-weight: bold; letter-spacing: 1px; box-sizing: border-box; outline: none;">
+            <div style="display: flex; gap: 10px;">
+                <button id="totpCancel" style="flex: 1; padding: 15px 5px; background: none; color: #fff; 
+                        border: none; border-radius: 0px; cursor: pointer; font-weight: bold; letter-spacing: 2px; 
+                        transition: 0.5s ease;">${Lang.queryJS('login.loginCancelText')}</button>
+                <button id="totpSubmit" style="flex: 1; padding: 15px 5px; background: none; color: #fff; 
+                        border: none; border-radius: 0px; cursor: pointer; font-weight: bold; letter-spacing: 2px; 
+                        transition: 0.5s ease;">${Lang.queryJS('overlay.serverSelectConfirm')}</button>
+            </div>
+        </div>
+    `
+    
+    document.body.appendChild(totpDialog)
+    
+    const totpTokenInput = document.getElementById('totpToken')
+    const totpCancelBtn = document.getElementById('totpCancel')
+    const totpSubmitBtn = document.getElementById('totpSubmit')
+    
+    // Focus on input field
+    totpTokenInput.focus()
+    
+    // Add hover effects for buttons
+    totpCancelBtn.addEventListener('mouseenter', () => {
+        totpCancelBtn.style.textShadow = '0px 0px 20px #fff'
+    })
+    totpCancelBtn.addEventListener('mouseleave', () => {
+        totpCancelBtn.style.textShadow = 'none'
+    })
+    totpCancelBtn.addEventListener('mousedown', () => {
+        totpCancelBtn.style.color = '#c7c7c7'
+        totpCancelBtn.style.textShadow = '0px 0px 20px #c7c7c7'
+    })
+    totpCancelBtn.addEventListener('mouseup', () => {
+        totpCancelBtn.style.color = '#fff'
+        totpCancelBtn.style.textShadow = 'none'
+    })
+    
+    totpSubmitBtn.addEventListener('mouseenter', () => {
+        totpSubmitBtn.style.textShadow = '0px 0px 20px #fff'
+    })
+    totpSubmitBtn.addEventListener('mouseleave', () => {
+        totpSubmitBtn.style.textShadow = 'none'
+    })
+    totpSubmitBtn.addEventListener('mousedown', () => {
+        totpSubmitBtn.style.color = '#c7c7c7'
+        totpSubmitBtn.style.textShadow = '0px 0px 20px #c7c7c7'
+    })
+    totpSubmitBtn.addEventListener('mouseup', () => {
+        totpSubmitBtn.style.color = '#fff'
+        totpSubmitBtn.style.textShadow = 'none'
+    })
+    
+    // Event handlers
+    totpCancelBtn.onclick = () => {
+        document.body.removeChild(totpDialog)
+        formDisabled(false)
+        window.isElyLogin = false // Reset flag
+    }
+    
+    totpSubmitBtn.onclick = () => {
+        const totpToken = totpTokenInput.value.trim()
+        if (totpToken.length !== 6) {
+            alert(Lang.queryJS('auth.ely.error.twoFactorRequiredDesc'))
+            return
+        }
+        
+        // Remove dialog
+        document.body.removeChild(totpDialog)
+        
+        // Show loading
+        loginLoading(true)
+        
+        // Repeat authentication with TOTP token
+        AuthManager.addElyAccount(username, password, totpToken).then((value) => {
+            updateSelectedAccount(value)
+            loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.loggingIn'), Lang.queryJS('login.success'))
+            $('.circle-loader').toggleClass('load-complete')
+            $('.checkmark').toggle()
+            setTimeout(() => {
+                switchView(VIEWS.login, loginViewOnSuccess, 500, 500, async () => {
+                    // Temporary workaround
+                    if(loginViewOnSuccess === VIEWS.settings){
+                        await prepareSettings()
+                    }
+                    loginViewOnSuccess = VIEWS.landing // Reset this for good measure.
+                    loginCancelEnabled(false) // Reset this for good measure.
+                    loginViewCancelHandler = null // Reset this for good measure.
+                    loginUsername.value = ''
+                    loginPassword.value = ''
+                    $('.circle-loader').toggleClass('load-complete')
+                    $('.checkmark').toggle()
+                    loginLoading(false)
+                    loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.success'), Lang.queryJS('login.login'))
+                    formDisabled(false)
+                    window.isElyLogin = false // Reset flag
+                })
+            }, 1000)
+        }).catch((displayableError) => {
+            loginLoading(false)
+            
+            let actualDisplayableError
+            if(isDisplayableError(displayableError)) {
+                msftLoginLogger.error('Error while logging in with TOTP.', displayableError)
+                actualDisplayableError = displayableError
+            } else {
+                msftLoginLogger.error('Unhandled error during TOTP login.', displayableError)
+                actualDisplayableError = Lang.queryJS('login.error.unknown')
+            }
+
+            setOverlayContent(actualDisplayableError.title, actualDisplayableError.desc, Lang.queryJS('login.tryAgain'))
+            setOverlayHandler(() => {
+                formDisabled(false)
+                toggleOverlay(false)
+                window.isElyLogin = false // Reset flag
+            })
+            toggleOverlay(true)
+        })
+    }
+    
+    // Handle Enter key in input field
+    totpTokenInput.onkeypress = (e) => {
+        if (e.key === 'Enter') {
+            totpSubmitBtn.click()
+        }
+    }
+}
+
+// Initialize translations based on current auth service when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if we're in Ely.by login mode
+    const isElyLogin = window.isElyLogin || false
+    updateLoginTranslations(isElyLogin)
 })

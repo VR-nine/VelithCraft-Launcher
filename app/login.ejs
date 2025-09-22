@@ -8,7 +8,10 @@
     <div id="loginContent">
         <form id="loginForm">
             <img id="loginImageSeal" src="assets/images/SealCircle.png"/>
-            <span id="loginSubheader"><%- lang('login.loginSubheader') %></span>
+            <div id="loginHeaderContainer">
+                <img id="loginServiceIcon" src="assets/images/icons/mojang.svg" width="22" height="22" alt="mojang"/>
+                <span id="loginSubheader"><%- lang('login.loginSubheader') %></span>
+            </div>
             <div class="loginFieldContainer">
                 <svg id="profileSVG" class="loginSVG" viewBox="40 37 65.36 61.43">
                     <g>
@@ -29,7 +32,7 @@
             </div>
             <div id="loginOptions">
                 <span class="loginSpanDim">
-                    <a href="<%- lang('login.loginForgotPasswordLink') %>"><%- lang('login.loginForgotPasswordText') %></a>
+                    <a id="loginForgotPasswordLink" href="<%- lang('login.loginForgotPasswordLink') %>"><%- lang('login.loginForgotPasswordText') %></a>
                 </span>
                 <label id="checkmarkContainer">
                     <input id="loginRememberOption" type="checkbox" checked>
@@ -54,10 +57,10 @@
             </button>
             <div id="loginDisclaimer">
                 <span class="loginSpanDim" id="loginRegisterSpan">
-                    <a href="<%- lang('login.loginNeedAccountLink') %>"><%- lang('login.loginNeedAccountText') %></a>
+                    <a id="loginNeedAccountLink" href="<%- lang('login.loginNeedAccountLink') %>"><%- lang('login.loginNeedAccountText') %></a>
                 </span>
-                <p class="loginDisclaimerText"><%- lang('login.loginPasswordDisclaimer1') %></p>
-                <p class="loginDisclaimerText"><%- lang('login.loginPasswordDisclaimer2', { appName: lang('app.title') }) %></p>
+                <p id="loginPasswordDisclaimer1" class="loginDisclaimerText"><%- lang('login.loginPasswordDisclaimer1') %></p>
+                <p id="loginPasswordDisclaimer2" class="loginDisclaimerText"><%- lang('login.loginPasswordDisclaimer2', { appName: lang('app.title') }) %></p>
             </div>
         </form>
     </div>

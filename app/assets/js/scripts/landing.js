@@ -27,6 +27,11 @@ const {
     extractJdk
 }                             = require('helios-core/java')
 
+// Make functions globally available for other scripts
+window.validateSelectedJvm = validateSelectedJvm
+window.ensureJavaDirIsRoot = ensureJavaDirIsRoot
+window.updateSelectedServer = updateSelectedServer
+
 // Internal Requirements
 const DiscordWrapper          = require('./assets/js/discordwrapper')
 const ProcessBuilder          = require('./assets/js/processbuilder')
@@ -149,7 +154,19 @@ function updateSelectedAccount(authUser){
             username = authUser.displayName
         }
         if(authUser.uuid != null){
-            document.getElementById('avatarContainer').style.backgroundImage = `url('https://mc-heads.net/body/${authUser.uuid}/right')`
+            // Use SkinManager to get correct skin URL
+            const avatarContainer = document.getElementById('avatarContainer')
+            console.log('AuthUser:', authUser)
+            console.log('SkinManager available:', !!window.SkinManager)
+            if (window.SkinManager) {
+                console.log('Using SkinManager for head display')
+                // Use new method to display only head
+                window.SkinManager.updateHeadInElement(avatarContainer, authUser, 60)
+            } else {
+                console.log('Using fallback skin URL')
+                // Fallback to old method
+                document.getElementById('avatarContainer').style.backgroundImage = `url('https://mc-heads.net/body/${authUser.uuid}/right')`
+            }
         }
     }
     user_text.innerHTML = username
