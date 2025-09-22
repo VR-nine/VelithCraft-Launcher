@@ -48,24 +48,30 @@ async function retryOperation(operation, maxRetries = 3, delay = 15000) {
 
 async function getSkinUrl(account, type = 'head', size = 40) {
     if (!account || !account.uuid) {
+        console.log('SkinManager: No account or UUID provided, using default skin')
         return getDefaultSkinUrl(type, size)
     }
 
+    console.log('SkinManager: Getting skin for account:', account.type, account.uuid, account.username)
 
     switch (account.type) {
         case 'ely':
             // For Ely.by use username instead of UUID
             if (account.username) {
+                console.log('SkinManager: Using Ely.by skin for username:', account.username)
                 const elyUrl = await getElySkinUrlByNickname(account.username, type, size)
                 return elyUrl
             } else {
                 // Fallback to default skin if username is not available
+                console.log('SkinManager: No username for Ely.by account, using default skin')
                 return getDefaultSkinUrl(type, size)
             }
         case 'microsoft':
         case 'mojang':
         default:
+            console.log('SkinManager: Using Mojang/mc-heads skin for UUID:', account.uuid)
             const mojangUrl = getMojangSkinUrl(account.uuid, type, size)
+            console.log('SkinManager: Generated Mojang URL:', mojangUrl)
             return mojangUrl
     }
 }
@@ -222,14 +228,20 @@ function createHeadUrl(skinUrl, size = 40) {
     // Head in Minecraft texture is located at coordinates 8,8 with size 8x8 pixels
     // from 64x64 pixel texture
     
+    // Calculate the correct background size and position
+    // The head is 8x8 pixels in a 64x64 texture, so we need to scale accordingly
+    const backgroundSize = size * 8; // 8x scale for the head portion
+    const backgroundPosition = -size; // Negative offset to show the head portion
+    
     // Create CSS style for head cropping
     const headStyle = `
         background-image: url('${skinUrl}');
-        background-size: ${size * 8}px ${size * 8}px;
-        background-position: -${size}px -${size}px;
+        background-size: ${backgroundSize}px ${backgroundSize}px;
+        background-position: ${backgroundPosition}px ${backgroundPosition}px;
         width: ${size}px;
         height: ${size}px;
         image-rendering: pixelated;
+        background-repeat: no-repeat;
     `
     
     return headStyle
@@ -253,9 +265,30 @@ function updateHeadInElement(element, account, size = 40) {
         const skinUrl = await getSkinUrl(account, 'head', size)
         console.log('SkinManager: Updating element with head from skin URL:', skinUrl)
         
-        // Apply style for head cropping
-        const headStyle = createHeadUrl(skinUrl, size)
-        element.style.cssText = headStyle
+        // Apply styles based on account type
+        if (account.type === 'microsoft') {
+            // Microsoft returns ready-to-use avatar, no cropping needed
+            element.style.backgroundImage = `url('${skinUrl}')`
+            element.style.backgroundSize = 'cover'
+            element.style.backgroundPosition = 'center'
+            element.style.width = `${size}px`
+            element.style.height = `${size}px`
+            element.style.imageRendering = 'pixelated'
+            element.style.backgroundRepeat = 'no-repeat'
+            element.style.transform = 'scaleX(-1)'
+        } else {
+            // Ely.by and others return full skin texture, need cropping
+            const backgroundSize = size * 8
+            const backgroundPosition = -size
+            
+            element.style.backgroundImage = `url('${skinUrl}')`
+            element.style.backgroundSize = `${backgroundSize}px ${backgroundSize}px`
+            element.style.backgroundPosition = `${backgroundPosition}px ${backgroundPosition}px`
+            element.style.width = `${size}px`
+            element.style.height = `${size}px`
+            element.style.imageRendering = 'pixelated'
+            element.style.backgroundRepeat = 'no-repeat'
+        }
         
         console.log('SkinManager: Applied head style to element')
         
@@ -267,18 +300,43 @@ function updateHeadInElement(element, account, size = 40) {
             if (account.type === 'ely') {
                 const fallbackUrl = `https://mc-heads.net/head/${account.uuid}/${size}`
                 console.log('SkinManager: Trying mc-heads.net fallback for head:', fallbackUrl)
-                element.style.cssText = createHeadUrl(fallbackUrl, size)
+                
+                // mc-heads.net returns ready-to-use head, no cropping needed
+                element.style.backgroundImage = `url('${fallbackUrl}')`
+                element.style.backgroundSize = 'cover'
+                element.style.backgroundPosition = 'center'
+                element.style.width = `${size}px`
+                element.style.height = `${size}px`
+                element.style.imageRendering = 'pixelated'
+                element.style.backgroundRepeat = 'no-repeat'
                 
                 // If fallback also fails, use default skin
                 element.onerror = () => {
                     console.log('SkinManager: Fallback also failed, using default head')
                     const defaultUrl = getDefaultSkinUrl('head', size)
-                    element.style.cssText = createHeadUrl(defaultUrl, size)
+                    element.style.backgroundImage = `url('${defaultUrl}')`
+                    element.style.backgroundSize = 'cover'
+                    element.style.backgroundPosition = 'center'
+                    element.style.width = `${size}px`
+                    element.style.height = `${size}px`
+                    element.style.imageRendering = 'pixelated'
+                    element.style.backgroundRepeat = 'no-repeat'
                 }
             } else {
                 console.log('SkinManager: Using default head')
                 const defaultUrl = getDefaultSkinUrl('head', size)
-                element.style.cssText = createHeadUrl(defaultUrl, size)
+                element.style.backgroundImage = `url('${defaultUrl}')`
+                element.style.backgroundSize = 'cover'
+                element.style.backgroundPosition = 'center'
+                element.style.width = `${size}px`
+                element.style.height = `${size}px`
+                element.style.imageRendering = 'pixelated'
+                element.style.backgroundRepeat = 'no-repeat'
+                
+                // Отзеркалить для Microsoft аккаунтов
+                if (account.type === 'microsoft') {
+                    element.style.transform = 'scaleX(-1)'
+                }
             }
         }
         
@@ -287,7 +345,18 @@ function updateHeadInElement(element, account, size = 40) {
         console.error('SkinManager: Error getting skin URL after retries:', error)
         // In case of error use default skin
         const defaultUrl = getDefaultSkinUrl('head', size)
-        element.style.cssText = createHeadUrl(defaultUrl, size)
+        element.style.backgroundImage = `url('${defaultUrl}')`
+        element.style.backgroundSize = 'cover'
+        element.style.backgroundPosition = 'center'
+        element.style.width = `${size}px`
+        element.style.height = `${size}px`
+        element.style.imageRendering = 'pixelated'
+        element.style.backgroundRepeat = 'no-repeat'
+        
+        // Отзеркалить для Microsoft аккаунтов
+        if (account.type === 'microsoft') {
+            element.style.transform = 'scaleX(-1)'
+        }
     })
 }
 

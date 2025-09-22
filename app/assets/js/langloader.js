@@ -60,17 +60,67 @@ exports.setupLanguage = function(){
 }
 
 function detectSystemLanguage(){
-    // Get system language from various sources
-    let lang = process.env.LANG || 
+    let lang = 'en_US'
+    
+    // Try to get from macOS system preferences first
+    if(process.platform === 'darwin') {
+        try {
+            const { execSync } = require('child_process')
+            const appleLanguages = execSync('defaults read -g AppleLanguages', { encoding: 'utf8' })
+            // Parse plist format: ( "ru-RU", "en-RU" )
+            const match = appleLanguages.match(/\(\s*"([^"]+)"/)
+            if(match) {
+                lang = match[1] // Get the first language
+            }
+        } catch(e) {
+            // Fallback to other methods if macOS detection fails
+        }
+    }
+    
+    // Try to get from Windows system language
+    if(process.platform === 'win32' && lang === 'en_US') {
+        try {
+            const { execSync } = require('child_process')
+            // Try to get Windows locale using PowerShell
+            const windowsLocale = execSync('powershell -Command "Get-Culture | Select-Object -ExpandProperty Name"', { encoding: 'utf8' }).trim()
+            if(windowsLocale) {
+                lang = windowsLocale
+            }
+        } catch(e) {
+            // Fallback to other methods if Windows detection fails
+        }
+    }
+    
+    // Try to get from Linux system language
+    if(process.platform === 'linux' && lang === 'en_US') {
+        try {
+            const { execSync } = require('child_process')
+            // Try to get Linux locale
+            const linuxLocale = execSync('locale | grep LANG=', { encoding: 'utf8' }).trim()
+            if(linuxLocale) {
+                const match = linuxLocale.match(/LANG=([^\s]+)/)
+                if(match) {
+                    lang = match[1]
+                }
+            }
+        } catch(e) {
+            // Fallback to other methods if Linux detection fails
+        }
+    }
+    
+    // Fallback: Get system language from various sources
+    if(lang === 'en_US') {
+        lang = process.env.LANG || 
                process.env.LANGUAGE || 
                process.env.LC_ALL || 
                process.env.LC_MESSAGES ||
                'en_US'
+    }
     
     // Try to get from Intl API
     try {
         const intlLang = Intl.DateTimeFormat().resolvedOptions().locale
-        if(intlLang) {
+        if(intlLang && lang === 'en_US') {
             lang = intlLang
         }
     } catch(e) {
@@ -79,7 +129,7 @@ function detectSystemLanguage(){
     
     // Try to get from navigator (if available in renderer process)
     try {
-        if(typeof navigator !== 'undefined' && navigator.language) {
+        if(typeof navigator !== 'undefined' && navigator.language && lang === 'en_US') {
             lang = navigator.language
         }
     } catch(e) {
@@ -92,7 +142,22 @@ function detectSystemLanguage(){
     // Map common language codes to our supported languages
     const supportedLanguages = {
         'ru': 'ru_RU',
-        'en': 'en_US'
+        'en': 'en_US',
+        'es': 'es_ES',
+        'zh': 'zh_CN',
+        'zh-CN': 'zh_CN',
+        'zh-Hans': 'zh_CN',
+        'fr': 'fr_FR',
+        'fr-FR': 'fr_FR',
+        'pt': 'pt_PT',
+        'pt-PT': 'pt_PT',
+        'pt-BR': 'pt_PT',
+        'ja': 'ja_JP',
+        'ja-JP': 'ja_JP',
+        'de': 'de_DE',
+        'de-DE': 'de_DE',
+        'uk': 'uk_UA',
+        'uk-UA': 'uk_UA'
     }
     
     return supportedLanguages[langCode] || 'en_US'

@@ -21,6 +21,45 @@ const loginForm             = document.getElementById('loginForm')
 // Control variables.
 let lu = false, lp = false
 
+/**
+ * Update login form translations based on selected auth service
+ * 
+ * @param {boolean} isElyLogin True if Ely.by login, false if Mojang login
+ */
+function updateLoginTranslations(isElyLogin) {
+    const Lang = require('./assets/js/langloader')
+    
+    // Update elements that need dynamic translation
+    const elementsToUpdate = [
+        { id: 'loginSubheader', key: isElyLogin ? 'login.loginSubheaderEly' : 'login.loginSubheader' },
+        { id: 'loginUsername', key: isElyLogin ? 'login.loginEmailPlaceholderEly' : 'login.loginEmailPlaceholder', type: 'placeholder' },
+        { id: 'loginForgotPasswordLink', key: isElyLogin ? 'login.loginForgotPasswordLinkEly' : 'login.loginForgotPasswordLink', type: 'href' },
+        { id: 'loginNeedAccountLink', key: isElyLogin ? 'login.loginNeedAccountLinkElyby' : 'login.loginNeedAccountLinkMinecraft', type: 'href' },
+        { id: 'loginPasswordDisclaimer1', key: isElyLogin ? 'login.loginPasswordDisclaimer1Ely' : 'login.loginPasswordDisclaimer1' },
+        { id: 'loginPasswordDisclaimer2', key: isElyLogin ? 'login.loginPasswordDisclaimer2Ely' : 'login.loginPasswordDisclaimer2' }
+    ]
+    
+    // Update service icon
+    const serviceIcon = document.getElementById('loginServiceIcon')
+    if (serviceIcon) {
+        serviceIcon.src = isElyLogin ? 'assets/images/icons/elyby.svg' : 'assets/images/icons/mojang.svg'
+        serviceIcon.alt = isElyLogin ? 'ely.by' : 'mojang'
+    }
+    
+    elementsToUpdate.forEach(({ id, key, type = 'innerHTML' }) => {
+        const element = document.getElementById(id)
+        if (element) {
+            if (type === 'placeholder') {
+                element.placeholder = Lang.queryEJS(key)
+            } else if (type === 'href') {
+                element.href = Lang.queryEJS(key)
+            } else {
+                element.innerHTML = Lang.queryEJS(key)
+            }
+        }
+    })
+}
+
 
 /**
  * Show a login error.
@@ -221,7 +260,8 @@ loginButton.addEventListener('click', () => {
         loginLoading(false)
 
         // Check if two-factor authentication is required for ely.by
-        if (isElyLogin && displayableError.requiresTwoFactor) {
+        // Only show 2FA dialog if the error specifically indicates 2FA is required
+        if (isElyLogin && displayableError && displayableError.requiresTwoFactor === true) {
             // Show dialog for TOTP token input
             showTwoFactorDialog(loginUsername.value, loginPassword.value)
             return
@@ -272,21 +312,21 @@ function showTwoFactorDialog(username, password) {
     
     totpDialog.innerHTML = `
         <div style="background: rgba(0, 0, 0, 0.25); padding: 30px; border-radius: 3px; max-width: 400px; width: 90%; border: 1px solid rgba(126, 126, 126, 0.57);">
-            <h3 style="color: #fff; margin-bottom: 20px; text-align: center; font-family: 'Avenir Medium'; font-size: 20px; font-weight: bold; letter-spacing: 1px;">${Lang.queryJS('settings.twoFactorAuth')}</h3>
+            <h3 style="color: #fff; margin-bottom: 20px; text-align: center; font-size: 20px; font-weight: bold; letter-spacing: 1px;">${Lang.queryJS('settings.twoFactorAuth')}</h3>
             <p style="color: rgba(255, 255, 255, 0.75); margin-bottom: 20px; text-align: center; font-size: 12px; font-weight: bold;">
                 ${Lang.queryJS('settings.enterCodeTwoFactor')}:
             </p>
             <input type="text" id="totpToken" placeholder="000000" maxlength="6" 
                    style="display: block; width: 160px; padding: 7.5px; margin: 0 auto 20px; border: 1.5px solid #fff; border-width: 1.5px 0px 0px 0px; 
                           background: none; color: rgba(255, 255, 255, 0.75); border-radius: 0px; text-align: center; font-size: 18px; 
-                          font-family: 'Avenir Book'; font-weight: bold; letter-spacing: 1px; box-sizing: border-box; outline: none;">
+                          font-weight: bold; letter-spacing: 1px; box-sizing: border-box; outline: none;">
             <div style="display: flex; gap: 10px;">
                 <button id="totpCancel" style="flex: 1; padding: 15px 5px; background: none; color: #fff; 
                         border: none; border-radius: 0px; cursor: pointer; font-weight: bold; letter-spacing: 2px; 
-                        transition: 0.5s ease; font-family: 'Avenir Book';">${Lang.queryJS('login.loginCancelText')}</button>
+                        transition: 0.5s ease;">${Lang.queryJS('login.loginCancelText')}</button>
                 <button id="totpSubmit" style="flex: 1; padding: 15px 5px; background: none; color: #fff; 
                         border: none; border-radius: 0px; cursor: pointer; font-weight: bold; letter-spacing: 2px; 
-                        transition: 0.5s ease; font-family: 'Avenir Book';">${Lang.queryJS('overlay.serverSelectConfirm')}</button>
+                        transition: 0.5s ease;">${Lang.queryJS('overlay.serverSelectConfirm')}</button>
             </div>
         </div>
     `
@@ -405,3 +445,10 @@ function showTwoFactorDialog(username, password) {
         }
     }
 }
+
+// Initialize translations based on current auth service when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if we're in Ely.by login mode
+    const isElyLogin = window.isElyLogin || false
+    updateLoginTranslations(isElyLogin)
+})

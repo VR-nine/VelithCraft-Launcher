@@ -20,7 +20,7 @@ const log = LoggerUtil.getLogger('ElyAuth')
 const ElyErrorCode = {
     ILLEGAL_ARGUMENT: 'IllegalArgumentException',
     FORBIDDEN_OPERATION: 'ForbiddenOperationException',
-    TWO_FACTOR_REQUIRED: 'ForbiddenOperationException', // Special case for 2FA
+    TWO_FACTOR_REQUIRED: 'TWO_FACTOR_REQUIRED', // Special case for 2FA
     UNKNOWN: 'Unknown'
 }
 
@@ -67,13 +67,27 @@ class ElyRestAPI {
             } else {
                 log.error('Authentication error:', data)
                 
-                // Handle special 2FA case
+                // Handle special 2FA case - check for specific error message
                 if (response.status === 401 && 
                     data.error === ElyErrorCode.FORBIDDEN_OPERATION && 
+                    data.errorMessage && 
                     data.errorMessage === 'Account protected with two factor auth.') {
                     return {
                         responseStatus: RestResponseStatus.ERROR,
                         elyErrorCode: ElyErrorCode.TWO_FACTOR_REQUIRED,
+                        error: data
+                    }
+                }
+                
+                // Handle invalid credentials case
+                if (response.status === 401 && 
+                    data.error === ElyErrorCode.FORBIDDEN_OPERATION && 
+                    data.errorMessage && 
+                    (data.errorMessage === 'Invalid credentials. Invalid username or password.' ||
+                     data.errorMessage === 'Invalid credentials. Invalid email or password.')) {
+                    return {
+                        responseStatus: RestResponseStatus.ERROR,
+                        elyErrorCode: ElyErrorCode.FORBIDDEN_OPERATION,
                         error: data
                     }
                 }

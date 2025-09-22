@@ -1,4 +1,5 @@
 // Requirements
+const fs     = require('fs-extra')
 const os     = require('os')
 const semver = require('semver')
 
@@ -750,9 +751,19 @@ async function populateAuthAccounts(){
             }
         }
 
+        // We define styles depending on the account type
+        let imageStyle
+        if (acc.type === 'microsoft') {
+            // Microsoft Brings Back the Pre-Made Avatar, No Cropping Required
+            imageStyle = `background-image: url('${skinUrl}'); background-size: cover; background-position: center; width: 60px; height: 60px; image-rendering: pixelated;`
+        } else {
+            // Ely.by and others are returning the full skin, it needs to be trimmed
+            imageStyle = `background-image: url('${skinUrl}'); background-size: 480px 480px; background-position: -60px -60px; width: 60px; height: 60px; image-rendering: pixelated;`
+        }
+
         const accHtml = `<div class="settingsAuthAccount" uuid="${acc.uuid}">
             <div class="settingsAuthAccountLeft">
-                <div class="settingsAuthAccountImage" style="background-image: url('${skinUrl}'); background-size: 480px 480px; background-position: -60px -60px; width: 60px; height: 60px; image-rendering: pixelated;"></div>
+                <div class="settingsAuthAccountImage" style="${imageStyle}"></div>
             </div>
             <div class="settingsAuthAccountRight">
                 <div class="settingsAuthAccountDetails">
@@ -857,6 +868,12 @@ function parseModulesForUI(mdls, submodules, servConf){
     for(const mdl of mdls){
 
         if(mdl.rawModule.type === Type.ForgeMod || mdl.rawModule.type === Type.LiteMod || mdl.rawModule.type === Type.LiteLoader || mdl.rawModule.type === Type.FabricMod){
+
+            // Checking the existence of the mod file before displaying it in the UI
+            if(!fs.existsSync(mdl.getPath())){
+                console.warn(`Mod file not found, skipping UI display: ${mdl.getPath()}`)
+                continue
+            }
 
             if(mdl.getRequired().value){
 
