@@ -2,7 +2,7 @@ const remoteMain = require('@electron/remote/main')
 remoteMain.initialize()
 
 // Requirements
-const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron')
+const { app, BrowserWindow, ipcMain, Menu, shell, protocol } = require('electron')
 const autoUpdater                       = require('electron-updater').autoUpdater
 const ejse                              = require('ejs-electron')
 const fs                                = require('fs')
@@ -13,6 +13,20 @@ const { pathToFileURL }                 = require('url')
 const { AZURE_CLIENT_ID, MSFT_OPCODE, MSFT_REPLY_TYPE, MSFT_ERROR, SHELL_OPCODE } = require('./app/assets/js/ipcconstants')
 const LangLoader                        = require('./app/assets/js/langloader')
 const ConfigManager                     = require('./app/assets/js/configmanager')
+
+// Регистрируем схемы протоколов до готовности приложения
+protocol.registerSchemesAsPrivileged([
+    {
+        scheme: 'app',
+        privileges: {
+            standard: true,
+            secure: true,
+            allowServiceWorkers: true,
+            supportFetchAPI: true,
+            corsEnabled: true
+        }
+    }
+])
 
 // Setup Config first
 ConfigManager.load()
@@ -239,7 +253,9 @@ function createWindow() {
             preload: path.join(__dirname, 'app', 'assets', 'js', 'preloader.js'),
             nodeIntegration: true,
             contextIsolation: false,
-            webSecurity: false // Disable web security for loading HTTP resources
+            webSecurity: false, // Disable web security for loading HTTP resources
+            allowRunningInsecureContent: true, // Allow video playback
+            experimentalFeatures: true // Enable experimental features for better video support
         },
         backgroundColor: '#171614'
     })
@@ -385,6 +401,21 @@ function getPlatformIcon(filename){
 
     return path.join(__dirname, 'app', 'assets', 'images', `${filename}.${ext}`)
 }
+
+// Регистрируем протокол для локальных ресурсов
+app.whenReady().then(() => {
+    protocol.registerFileProtocol('app', (request, callback) => {
+        const url = request.url.substr(6) // Убираем 'app://'
+        const filePath = path.join(__dirname, url)
+        
+        // Проверяем существование файла
+        if (fs.existsSync(filePath)) {
+            callback({ path: filePath })
+        } else {
+            callback({ error: -6 }) // ERR_FILE_NOT_FOUND
+        }
+    })
+})
 
 app.on('ready', createWindow)
 app.on('ready', createMenu)
