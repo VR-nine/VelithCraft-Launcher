@@ -1,4 +1,4 @@
-<p align="center"><img src="./app/assets/images/SealCircle.png" width="150px" height="150px" alt="VelithCraft"></p>
+<p align="center"><img src="./app/assets/images/Seal.png" width="150px" height="150px" alt="VelithCraft"></p>
 
 <h1 align="center">VelithCraft Launcher</h1>
 <h2 align="center"><small>Fork by <a href="https://github.com/dscalzi/HeliosLauncher" target="_blank">Helios Launcher</a></small></h2>

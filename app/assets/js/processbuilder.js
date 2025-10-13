@@ -76,6 +76,15 @@ class ProcessBuilder {
         loggableArgs[loggableArgs.findIndex(x => x === this.authUser.accessToken)] = '**********'
 
         logger.info('Launch Arguments:', loggableArgs)
+        
+        // Debug info for Ely.by accounts
+        if(this.authUser.type === 'ely') {
+            logger.info('Ely.by Account Info:')
+            logger.info('  UUID:', this.authUser.uuid)
+            logger.info('  Username:', this.authUser.username)
+            logger.info('  Display Name:', this.authUser.displayName)
+            logger.info('  User Type:', this.authUser.type === 'microsoft' ? 'msa' : 'mojang')
+        }
 
         const child = child_process.spawn(ConfigManager.getJavaExecutable(this.server.rawServer.id), args, {
             cwd: this.gameDir,
@@ -380,6 +389,19 @@ class ProcessBuilder {
         args = args.concat(ConfigManager.getJVMOptions(this.server.rawServer.id))
         args.push('-Djava.library.path=' + tempNativePath)
 
+        // Ely.by: Add authlib-injector for client
+        if(this.authUser.type === 'ely') {
+            const authlibInjectorPath = path.join(__dirname, '..', '..', '..', 'libraries', 'authlib-injector-1.2.6.jar')
+            // Check if authlib-injector.jar exists
+            if(fs.existsSync(authlibInjectorPath)) {
+                args.unshift(`-javaagent:${authlibInjectorPath}=ely.by`)
+                logger.info('Ely.by: Using authlib-injector for client:', authlibInjectorPath)
+            } else {
+                logger.warn('Ely.by: authlib-injector.jar not found at:', authlibInjectorPath)
+                logger.warn('Ely.by: Download it from https://github.com/yushijinhun/authlib-injector/releases')
+            }
+        }
+
         // Main Java Class
         args.push(this.modManifest.mainClass)
 
@@ -429,6 +451,19 @@ class ProcessBuilder {
         args.push('-Xmx' + ConfigManager.getMaxRAM(this.server.rawServer.id))
         args.push('-Xms' + ConfigManager.getMinRAM(this.server.rawServer.id))
         args = args.concat(ConfigManager.getJVMOptions(this.server.rawServer.id))
+
+        // Ely.by: Add authlib-injector for client
+        if(this.authUser.type === 'ely') {
+            const authlibInjectorPath = path.join(__dirname, '..', '..', '..', 'libraries', 'authlib-injector-1.2.6.jar')
+            // Check if authlib-injector.jar exists
+            if(fs.existsSync(authlibInjectorPath)) {
+                args.unshift(`-javaagent:${authlibInjectorPath}=ely.by`)
+                logger.info('Ely.by: Using authlib-injector for client:', authlibInjectorPath)
+            } else {
+                logger.warn('Ely.by: authlib-injector.jar not found at:', authlibInjectorPath)
+                logger.warn('Ely.by: Download it from https://github.com/yushijinhun/authlib-injector/releases')
+            }
+        }
 
         // Main Java Class
         args.push(this.modManifest.mainClass)
@@ -510,8 +545,7 @@ class ProcessBuilder {
                             val = this.authUser.accessToken
                             break
                         case 'user_type':
-                            val = this.authUser.type === 'microsoft' ? 'msa' : 
-                                  this.authUser.type === 'ely' ? 'ely' : 'mojang'
+                            val = this.authUser.type === 'microsoft' ? 'msa' : 'mojang'
                             break
                         case 'version_type':
                             val = this.vanillaManifest.type
@@ -595,8 +629,7 @@ class ProcessBuilder {
                         val = this.authUser.accessToken
                         break
                     case 'user_type':
-                        val = this.authUser.type === 'microsoft' ? 'msa' : 
-                              this.authUser.type === 'ely' ? 'ely' : 'mojang'
+                        val = this.authUser.type === 'microsoft' ? 'msa' : 'mojang'
                         break
                     case 'user_properties': // 1.8.9 and below.
                         val = '{}'

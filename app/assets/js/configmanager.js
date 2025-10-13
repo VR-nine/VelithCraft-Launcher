@@ -405,15 +405,21 @@ exports.updateElyAuthAccount = function(uuid, accessToken){
  * @returns {Object} The authenticated account object created by this action.
  */
 exports.addElyAuthAccount = function(uuid, accessToken, username, displayName){
-    config.selectedAccount = uuid
-    config.authenticationDatabase[uuid] = {
+    // Format UUID with dashes for Minecraft compatibility
+    // Ely.by returns UUID without dashes, but Minecraft expects format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    const formattedUuid = uuid.length === 32 && !uuid.includes('-')
+        ? `${uuid.substring(0,8)}-${uuid.substring(8,12)}-${uuid.substring(12,16)}-${uuid.substring(16,20)}-${uuid.substring(20)}`
+        : uuid.trim()
+    
+    config.selectedAccount = formattedUuid
+    config.authenticationDatabase[formattedUuid] = {
         type: 'ely',
         accessToken,
         username: username.trim(),
-        uuid: uuid.trim(),
+        uuid: formattedUuid,
         displayName: displayName.trim()
     }
-    return config.authenticationDatabase[uuid]
+    return config.authenticationDatabase[formattedUuid]
 }
 
 /**
