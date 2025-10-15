@@ -49,3 +49,9 @@ linux:
 directories:
   buildResources: 'build'
   output: 'dist'
+
+# Auto-updater configuration
+publish:
+  provider: github
+  owner: VR-nine
+  repo: VelithCraft-Launcher
