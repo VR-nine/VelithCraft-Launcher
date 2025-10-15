@@ -7,7 +7,7 @@
 
 <p align="center">Join modded servers without worrying about installing Java, Forge, or other mods. We'll handle that for you.</p>
 
-![Screenshot 1](https://velithcraft.online/images/screenshots/screenshot-main.png)
+![Screenshot 1](./app/assets/images/screenshot-main.png)
 
 ## Features
 
